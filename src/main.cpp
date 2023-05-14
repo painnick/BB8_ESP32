@@ -2,8 +2,8 @@
 
 #include "esp_log.h"
 
-#include "soc/soc.h"             // disable brownout problems
-#include "soc/rtc_cntl_reg.h"    // disable brownout problems
+#include "soc/rtc_cntl_reg.h" // disable brownout problems
+#include "soc/soc.h"          // disable brownout problems
 
 #define MAIN_TAG "Main"
 
@@ -11,7 +11,7 @@
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
 // for the ESP32-S2 the GPIO pins are 1-21,26,33-42
 
-#define PIN_DATA  12
+#define PIN_DATA 12
 #define PIN_LATCH 13
 #define PIN_CLOCK 15
 
@@ -25,9 +25,9 @@
 byte shift_register = 0;
 
 void updateShiftRegister() {
-   digitalWrite(PIN_LATCH, LOW);
-   shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, shift_register);
-   digitalWrite(PIN_LATCH, HIGH);
+  digitalWrite(PIN_LATCH, LOW);
+  shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, shift_register);
+  digitalWrite(PIN_LATCH, HIGH);
 }
 
 void setup() {
@@ -41,6 +41,5 @@ void setup() {
   bitSet(shift_register, 0);
   updateShiftRegister();
 }
- 
-void loop() {
-}
+
+void loop() {}
