@@ -5,6 +5,8 @@
 #include "soc/rtc_cntl_reg.h" // disable brownout problems
 #include "soc/soc.h"          // disable brownout problems
 
+#include <SoftwareSerial.h>
+
 #include "ShiftRegisterController.h"
 
 #define MAIN_TAG "Main"
@@ -17,9 +19,8 @@
 #define PIN_LATCH 22
 #define PIN_CLOCK 21
 
-#define PIN_NOT_USED1 14
-#define PIN_NOT_USED2 2
-#define PIN_NOT_USED3 16
+#define PIN_RX 15
+#define PIN_TX 14
 
 #define PIN_FLASH_LED 4
 #define PIN_INTERNAL_LED 33
@@ -30,9 +31,13 @@
 #define CHANNEL_MOTOR1 14
 #define CHANNEL_MOTOR2 15
 
+SoftwareSerial cmdSerial(PIN_RX, PIN_TX);
+
 ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 
 void setup() {
+  cmdSerial.begin(9600);
+
   pinMode(PIN_INTERNAL_LED, OUTPUT);
   controller.set(0);
   controller.update();
@@ -46,15 +51,33 @@ void setup() {
   ledcWrite(CHANNEL_MOTOR1, 0);
   ledcWrite(CHANNEL_MOTOR2, 255);
 
-  ESP_LOGI(MAIN_TAG, "Setup.");
+  ESP_LOGI(MAIN_TAG, "Setup Body");
+
+  cmdSerial.printf("NOP\r\n");
+  cmdSerial.printf("NOP\r\n");
 }
 
-uint8_t i = 0;
+unsigned long lastTime = 0;
+int i = 0;
 void loop() {
-
-  byte curVal = 0;
-  controller.set(bitSet(curVal, i));
-  controller.update();
   i = (++i) % 8;
+  unsigned long now = millis();
+  if (now - lastTime > 3000) {
+    lastTime = now;
+    cmdSerial.printf("Command%d\r\n", i);
+    cmdSerial.flush();
+    ESP_LOGI(MAIN_TAG, "Send! %d", i);
+  }
+
+  if (cmdSerial.available()) {
+    ESP_LOGI(MAIN_TAG, "=> %s", cmdSerial.readString());
+
+    byte curVal = 0;
+    controller.set(bitSet(curVal, 7));
+  } else {
+    controller.set(0);
+  }
+
+  controller.update();
   delay(500);
 }
