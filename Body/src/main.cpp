@@ -91,13 +91,13 @@ void loop() {
         ESP_LOGI(MAIN_TAG, "<= %s", cmd.c_str());
 
         byte curVal = 0;
-        controller.set(bitSet(curVal, 7));
-      } else {
-        controller.set(0);
+        controller.set(bitSet(curVal, 6));
       }
     }
-
-    controller.update();
-    delay(500);
+  } else {
+    controller.set(0);
   }
+
+  controller.update();
+  delay(10);
 }

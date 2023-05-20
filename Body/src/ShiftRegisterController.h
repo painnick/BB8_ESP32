@@ -18,4 +18,5 @@ private:
   uint8_t PIN_CLOCK;
 
   byte value;
+  bool changed;
 };
