@@ -31,12 +31,18 @@
 #define CHANNEL_MOTOR1 14
 #define CHANNEL_MOTOR2 15
 
-SoftwareSerial cmdSerial(PIN_RX, PIN_TX);
-
 ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 
+#define cmdSerial Serial1
+
+#define COMMAND_DELIMETER "\r\n"
+#define COMMAND_DELIMETER_SIZE 2
+#define MAX_COMMAND_BUFFER_SZIE 50
+
+String cmdBuffer = "";
+
 void setup() {
-  cmdSerial.begin(9600);
+  cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
 
   pinMode(PIN_INTERNAL_LED, OUTPUT);
   controller.set(0);
@@ -57,27 +63,41 @@ void setup() {
   cmdSerial.printf("NOP\r\n");
 }
 
-unsigned long lastTime = 0;
 int i = 0;
+unsigned long lastTime = 0;
 void loop() {
-  i = (++i) % 8;
   unsigned long now = millis();
-  if (now - lastTime > 3000) {
+  if (now - lastTime > 5000) {
     lastTime = now;
-    cmdSerial.printf("Command%d\r\n", i);
+    i = (++i) % 2;
+    cmdSerial.printf("LED%d\r\n", i);
     cmdSerial.flush();
-    ESP_LOGI(MAIN_TAG, "Send! %d", i);
+    ESP_LOGI(MAIN_TAG, "=> LED%d", i);
   }
 
   if (cmdSerial.available()) {
-    ESP_LOGI(MAIN_TAG, "=> %s", cmdSerial.readString());
+    // Append command-buffer
+    while (cmdSerial.available()) {
+      cmdBuffer += (char)cmdSerial.read();
+    }
+    // Check size of command-buffer
+    if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SZIE) {
+      cmdBuffer = "";
+    } else {
+      int found = cmdBuffer.indexOf(COMMAND_DELIMETER);
+      if (found != -1) {
+        String cmd = cmdBuffer.substring(0, found);
+        cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
+        ESP_LOGI(MAIN_TAG, "<= %s", cmd.c_str());
 
-    byte curVal = 0;
-    controller.set(bitSet(curVal, 7));
-  } else {
-    controller.set(0);
+        byte curVal = 0;
+        controller.set(bitSet(curVal, 7));
+      } else {
+        controller.set(0);
+      }
+    }
+
+    controller.update();
+    delay(500);
   }
-
-  controller.update();
-  delay(500);
 }

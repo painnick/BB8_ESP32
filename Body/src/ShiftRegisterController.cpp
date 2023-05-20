@@ -13,6 +13,7 @@ void ShiftRegisterController::update() {
   digitalWrite(PIN_LATCH, LOW);
   shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, value);
   digitalWrite(PIN_LATCH, HIGH);
+  // ESP_LOGI(SR_TAG, "LED %d", value);
 }
 
 void ShiftRegisterController::set(byte newVal) { value = newVal; }

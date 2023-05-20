@@ -1,0 +1,21 @@
+#pragma once
+
+#define SOFT_AP_SSID "BB-8"
+#define SOFT_AP_PASSWORD "aaaa1111"
+
+#define SOFT_AP_IP_ADDRESS_1 192
+#define SOFT_AP_IP_ADDRESS_2 168
+#define SOFT_AP_IP_ADDRESS_3 5
+#define SOFT_AP_IP_ADDRESS_4 18
+
+#define SOFT_AP_GW_ADDRESS_1 192
+#define SOFT_AP_GW_ADDRESS_2 168
+#define SOFT_AP_GW_ADDRESS_3 5
+#define SOFT_AP_GW_ADDRESS_4 20
+
+#define SOFT_AP_NM_ADDRESS_1 255
+#define SOFT_AP_NM_ADDRESS_2 255
+#define SOFT_AP_NM_ADDRESS_3 255
+#define SOFT_AP_NM_ADDRESS_4 0
+
+extern void setupCamera();
