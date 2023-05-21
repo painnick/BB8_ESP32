@@ -33,7 +33,7 @@
 
 ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 
-VR myVR(2, 3);
+VR myVR;
 uint8_t buf[255];
 uint8_t records[7];
 

@@ -32,6 +32,9 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "esp_log.h"
+#define VR_TAG "VR"
+
 // ESP32 UART2 connected to Elechouse V3 voice recognition module
 // Note that Elechouse module is 5V and ESP32 is 3V3, so make sure to use a
 // resistor-divider when connecting Elechouse Tx pin to ESP32 Rx pin.
@@ -47,10 +50,8 @@ uint8_t hextab[17] = "0123456789ABCDEF";
 
 /**
         @brief VR class constructor.
-        @param receivePin --> software serial RX - IGNORED FOR ESP32
-                   transmitPin --> software serial TX - IGNORED FOR ESP32
 */
-VR::VR(uint8_t receivePin, uint8_t transmitPin) { instance = this; }
+VR::VR() { instance = this; }
 
 /**
         @brief VR class constructor.
@@ -111,19 +112,19 @@ int VR ::train(uint8_t *records, uint8_t len, uint8_t *buf) {
     if (ret > 0) {
       switch (vr_buf[2]) {
       case FRAME_CMD_PROMPT:
-        DBGSTR("Record:\t");
-        DBGFMT(vr_buf[3], DEC);
-        DBGSTR("\t");
-        DBGBUF(vr_buf + 4, ret - 4);
+        // DBGSTR("Record:\t");
+        // DBGFMT(vr_buf[3], DEC);
+        // DBGSTR("\t");
+        // DBGBUF(vr_buf + 4, ret - 4);
         break;
       case FRAME_CMD_TRAIN:
         if (buf != 0) {
           memcpy(buf, vr_buf + 3, vr_buf[1] - 2);
           return vr_buf[1] - 2;
         }
-        DBGSTR("Train finish.\r\nSuccess: \t");
-        DBGFMT(vr_buf[3], DEC);
-        DBGSTR(" \r\n");
+        // DBGSTR("Train finish.\r\nSuccess: \t");
+        // DBGFMT(vr_buf[3], DEC);
+        // DBGSTR(" \r\n");
         return 0;
         break;
       default:
@@ -195,10 +196,10 @@ int VR ::trainWithSignature(uint8_t record, const void *buf, uint8_t len,
     if (ret > 0) {
       switch (vr_buf[2]) {
       case FRAME_CMD_PROMPT:
-        DBGSTR("Record:\t");
-        DBGFMT(vr_buf[3], DEC);
-        DBGSTR("\t");
-        DBGBUF(vr_buf + 4, ret - 4);
+        // DBGSTR("Record:\t");
+        // DBGFMT(vr_buf[3], DEC);
+        // DBGSTR("\t");
+        // DBGBUF(vr_buf + 4, ret - 4);
         break;
       case FRAME_CMD_SIG_TRAIN:
         if (retbuf != 0) {
@@ -206,9 +207,9 @@ int VR ::trainWithSignature(uint8_t record, const void *buf, uint8_t len,
           return vr_buf[1] - 2;
         }
 
-        DBGSTR("Train finish.\r\nSuccess: \t");
-        DBGFMT(vr_buf[3], DEC);
-        DBGSTR(" \r\n");
+        // DBGSTR("Train finish.\r\nSuccess: \t");
+        // DBGFMT(vr_buf[3], DEC);
+        // DBGSTR(" \r\n");
         writehex(vr_buf, vr_buf[1] + 2);
         return 0;
         break;
@@ -380,17 +381,13 @@ int VR ::clear() {
   len = receive_pkt(vr_buf);
 
   if (len <= 0) {
-    Serial.println("Clear returned nothing\r\n");
+    ESP_LOGE(VR_TAG, "Clear returned nothing");
     return -1;
   }
 
   if (vr_buf[2] != FRAME_CMD_CLEAR) {
-    Serial.println("Clear returned ");
-    Serial.print(vr_buf[0], HEX);
-    Serial.print(vr_buf[1], HEX);
-    Serial.print(vr_buf[2], HEX);
-    Serial.print(vr_buf[3], HEX);
-    Serial.print("\r\n");
+    ESP_LOGE(VR_TAG, "Clear returned %x %x %x %x", vr_buf[0], vr_buf[1],
+             vr_buf[2], vr_buf[3]);
     return -1;
   }
   // DBGLN("VR Module Cleared");
@@ -963,7 +960,7 @@ int VR ::test(uint8_t cmd, uint8_t *bsr) {
           }
           break;
         default:
-          DBGLN("TEST ERROR");
+          // DBGLN("TEST ERROR");
           return -1;
           break;
         }
@@ -986,7 +983,7 @@ int VR ::test(uint8_t cmd, uint8_t *bsr) {
           if (vr_buf[2] == FRAME_CMD_TEST) {
             break;
           } else {
-            DBGLN("TEST ERROR");
+            // DBGLN("TEST ERROR");
             return -1;
           }
           start_millis = millis();
@@ -1088,9 +1085,9 @@ int VR ::cleanDup(uint8_t *des, uint8_t *buf, int len) {
 int VR ::writehex(uint8_t *buf, uint8_t len) {
   int i;
   for (i = 0; i < len; i++) {
-    DBGCHAR(hextab[(buf[i] & 0xF0) >> 4]);
-    DBGCHAR(hextab[(buf[i] & 0x0F)]);
-    DBGCHAR(' ');
+    // DBGCHAR(hextab[(buf[i] & 0xF0) >> 4]);
+    // DBGCHAR(hextab[(buf[i] & 0x0F)]);
+    // DBGCHAR(' ');
   }
   return len;
 }
@@ -1105,20 +1102,20 @@ int VR ::writehex(uint8_t *buf, uint8_t len) {
 void VR ::send_pkt(uint8_t cmd, uint8_t subcmd, uint8_t *buf, uint8_t len) {
   while (Serial2.available()) {
     Serial2.read(); // replace flush();
-    delay(TXDLY);
+    // delay(TXDLY);
   }
   Serial2.write(FRAME_HEAD);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(len + 3);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(cmd);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(subcmd);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(buf, len);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(FRAME_END);
-  delay(TXDLY);
+  // delay(TXDLY);
 }
 
 /**
@@ -1130,18 +1127,18 @@ void VR ::send_pkt(uint8_t cmd, uint8_t subcmd, uint8_t *buf, uint8_t len) {
 void VR ::send_pkt(uint8_t cmd, uint8_t *buf, uint8_t len) {
   while (Serial2.available()) {
     Serial2.read(); // replace flush();
-    delay(TXDLY);
+    // delay(TXDLY);
   }
   Serial2.write(FRAME_HEAD);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(len + 2);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(cmd);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(buf, len);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(FRAME_END);
-  delay(TXDLY);
+  // delay(TXDLY);
 }
 
 /**
@@ -1152,16 +1149,16 @@ void VR ::send_pkt(uint8_t cmd, uint8_t *buf, uint8_t len) {
 void VR ::send_pkt(uint8_t *buf, uint8_t len) {
   while (Serial2.available()) {
     Serial2.read(); // replace flush();
-    delay(TXDLY);
+    // delay(TXDLY);
   }
   Serial2.write(FRAME_HEAD);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(len + 1);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(buf, len);
-  delay(TXDLY);
+  // delay(TXDLY);
   Serial2.write(FRAME_END);
-  delay(TXDLY);
+  // delay(TXDLY);
 }
 
 /**
