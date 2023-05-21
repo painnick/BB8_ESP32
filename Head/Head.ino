@@ -62,7 +62,7 @@ unsigned long lastTime = 0;
 String cmdBuffer = "";
 void loop() {
   unsigned long now = millis();
-  if (now - lastTime > 3000) {
+  if (now - lastTime > 1000 * 30) {
     lastTime = now;
     cmdSerial.printf("Keep.");
     cmdSerial.printf(COMMAND_DELIMETER);
@@ -101,7 +101,7 @@ void process(String& cmd) {
   if (cmd == "LED1") {
     digitalWrite(PIN_LED1, HIGH);
 
-    cmdSerial.printf("OK. LED1");
+    cmdSerial.printf("PLAY1");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
 

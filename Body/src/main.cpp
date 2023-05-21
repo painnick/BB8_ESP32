@@ -129,6 +129,10 @@ void loop() {
         cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
         ESP_LOGI(MAIN_TAG, "<= %s", cmd.c_str());
 
+        if (cmd == "PLAY1") {
+          dfmp3.nextTrack();
+        }
+
         byte curVal = 0;
         controller.set(bitSet(curVal, 6));
         // delay(10);
