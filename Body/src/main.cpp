@@ -9,7 +9,10 @@
 
 #include "VoiceRecognitionV3.h"
 
+#include "SoftwareSerial.h"
+
 #define MAIN_TAG "Main"
+#define MP3_TAG "DFPlayer"
 
 // These are all GPIO pins on the ESP32
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
@@ -37,6 +40,15 @@ VR myVR;
 uint8_t buf[255];
 uint8_t records[7];
 
+#define PIN_MP3_RX 13
+#define PIN_MP3_TX 27
+
+#include "DFMiniMp3.h"
+class Mp3Notify;
+typedef DFMiniMp3<SoftwareSerial, Mp3Notify> DfMp3;
+SoftwareSerial dfplayer(PIN_MP3_RX, PIN_MP3_TX);
+DfMp3 dfmp3(dfplayer);
+
 #define cmdSerial Serial1
 
 #define COMMAND_DELIMETER "\r\n"
@@ -54,6 +66,21 @@ void setup() {
   records[3] = 3;
   int ret = myVR.setAutoLoad(records, 4);
   ESP_LOGI(MAIN_TAG, "Setup VoiceRecognition");
+
+  // dfplayer.begin(9600, SWSERIAL_8N1, PIN_MP3_RX, PIN_MP3_TX, false);
+  dfmp3.begin(9600, 1000);
+  dfmp3.reset();
+
+  while (!dfmp3.isOnline()) {
+    delay(10);
+  }
+
+  dfmp3.setVolume(18);
+  // dfmp3.loop();
+  // dfmp3.playRandomTrackFromAll();
+  // dfmp3.loop();
+
+  ESP_LOGI(MAIN_TAG, "Setup DFPlayer");
 
   cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
   delay(500);
@@ -78,7 +105,13 @@ void setup() {
   cmdSerial.printf("NOP\r\n");
 }
 
+// unsigned long lastMp3Checked = 0;
 void loop() {
+  // unsigned long now = millis();
+  // if (now - lastMp3Checked > 1000 * 10) {
+  //   dfmp3.nextTrack();
+  //   lastMp3Checked = now;
+  // }
 
   // Check Command
   if (cmdSerial.available()) {
@@ -117,4 +150,69 @@ void loop() {
   }
 
   controller.update();
+
+  dfmp3.loop();
 }
+
+//----------------------------------------------------------------------------------
+class Mp3Notify {
+public:
+  static void PrintlnSourceAction(DfMp3_PlaySources source,
+                                  const char *action) {
+    if (source & DfMp3_PlaySources_Sd) {
+      ESP_LOGD(MP3_TAG, "SD Card, %s", action);
+    }
+    if (source & DfMp3_PlaySources_Usb) {
+      ESP_LOGD(MP3_TAG, "USB Disk, %s", action);
+    }
+    if (source & DfMp3_PlaySources_Flash) {
+      ESP_LOGD(MP3_TAG, "Flash, %s", action);
+    }
+  }
+  static void OnError(DfMp3 &mp3, uint16_t errorCode) {
+    // see DfMp3_Error for code meaning
+    Serial.println();
+    Serial.print("Com Error ");
+    switch (errorCode) {
+    case DfMp3_Error_Busy:
+      ESP_LOGE(MP3_TAG, "Com Error - Busy");
+      break;
+    case DfMp3_Error_Sleeping:
+      ESP_LOGE(MP3_TAG, "Com Error - Sleeping");
+      break;
+    case DfMp3_Error_SerialWrongStack:
+      ESP_LOGE(MP3_TAG, "Com Error - Serial Wrong Stack");
+      break;
+
+    case DfMp3_Error_RxTimeout:
+      ESP_LOGE(MP3_TAG, "Com Error - Rx Timeout!!!");
+      break;
+    case DfMp3_Error_PacketSize:
+      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Size!!!");
+      break;
+    case DfMp3_Error_PacketHeader:
+      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Header!!!");
+      break;
+    case DfMp3_Error_PacketChecksum:
+      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Checksum!!!");
+      break;
+
+    default:
+      ESP_LOGE(MP3_TAG, "Com Error - %d", errorCode);
+      break;
+    }
+  }
+  static void OnPlayFinished(DfMp3 &mp3, DfMp3_PlaySources source,
+                             uint16_t track) {
+    ESP_LOGD(MP3_TAG, "Play finished for #%d", track);
+  }
+  static void OnPlaySourceOnline(DfMp3 &mp3, DfMp3_PlaySources source) {
+    PrintlnSourceAction(source, "online");
+  }
+  static void OnPlaySourceInserted(DfMp3 &mp3, DfMp3_PlaySources source) {
+    PrintlnSourceAction(source, "inserted");
+  }
+  static void OnPlaySourceRemoved(DfMp3 &mp3, DfMp3_PlaySources source) {
+    PrintlnSourceAction(source, "removed");
+  }
+};
