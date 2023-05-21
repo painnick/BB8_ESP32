@@ -5,9 +5,9 @@
 #include "soc/rtc_cntl_reg.h" // disable brownout problems
 #include "soc/soc.h"          // disable brownout problems
 
-#include <SoftwareSerial.h>
-
 #include "ShiftRegisterController.h"
+
+#include "VoiceRecognitionV3.h"
 
 #define MAIN_TAG "Main"
 
@@ -33,6 +33,10 @@
 
 ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 
+VR myVR(2, 3);
+uint8_t buf[255];
+uint8_t records[7];
+
 #define cmdSerial Serial1
 
 #define COMMAND_DELIMETER "\r\n"
@@ -42,7 +46,18 @@ ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 String cmdBuffer = "";
 
 void setup() {
+  myVR.begin(9600);
+  delay(500);
+  records[0] = 0;
+  records[1] = 1;
+  records[2] = 2;
+  records[3] = 3;
+  int ret = myVR.setAutoLoad(records, 4);
+  ESP_LOGI(MAIN_TAG, "Setup VoiceRecognition");
+
   cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
+  delay(500);
+  ESP_LOGI(MAIN_TAG, "Setup Command-Serial");
 
   pinMode(PIN_INTERNAL_LED, OUTPUT);
   controller.set(0);
@@ -92,12 +107,17 @@ void loop() {
 
         byte curVal = 0;
         controller.set(bitSet(curVal, 6));
+        // delay(10);
       }
     }
   } else {
     controller.set(0);
   }
 
+  int ret = myVR.recognize(buf, 50);
+  if (ret > 0) {
+    ESP_LOGI(MAIN_TAG, "!!!Command!!! %d", buf[2]);
+  }
+
   controller.update();
-  delay(10);
 }
