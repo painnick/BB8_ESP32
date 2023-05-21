@@ -78,18 +78,9 @@ void setup() {
   cmdSerial.printf("NOP\r\n");
 }
 
-int i = 0;
-unsigned long lastTime = 0;
 void loop() {
-  unsigned long now = millis();
-  if (now - lastTime > 5000) {
-    lastTime = now;
-    i = (++i) % 2;
-    cmdSerial.printf("LED%d\r\n", i);
-    cmdSerial.flush();
-    ESP_LOGI(MAIN_TAG, "=> LED%d", i);
-  }
 
+  // Check Command
   if (cmdSerial.available()) {
     // Append command-buffer
     while (cmdSerial.available()) {
@@ -114,9 +105,15 @@ void loop() {
     controller.set(0);
   }
 
+  // Check VoiceRecognition
   int ret = myVR.recognize(buf, 50);
   if (ret > 0) {
-    ESP_LOGI(MAIN_TAG, "!!!Command!!! %d", buf[2]);
+    int cmd = buf[2];
+    cmdSerial.printf("LED%d\r\n", cmd);
+    cmdSerial.flush();
+    ESP_LOGI(MAIN_TAG, "=> LED%d", cmd);
+
+    ESP_LOGI(MAIN_TAG, "!!!Command!!! %d", cmd);
   }
 
   controller.update();
