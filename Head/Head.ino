@@ -2,10 +2,7 @@
 
 #include "esp_log.h"
 
-#include "soc/rtc_cntl_reg.h" // disable brownout problems
-#include "soc/soc.h"          // disable brownout problems
-
-#include "CameraController.h"
+#include "http_server.h"
 
 #define USE_SERIAL
 
@@ -42,7 +39,9 @@ void setup() {
   Serial.println("Setup...");
 #endif
 
-  setupCamera();
+  initCamera();
+  initCameraServer();
+  startCameraServer();
 #ifdef USE_SERIAL
   Serial.println("Setup Camera.");
 #endif
