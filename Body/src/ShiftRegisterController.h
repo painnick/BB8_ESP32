@@ -10,6 +10,9 @@ public:
                           uint8_t clock_pin);
   void update();
   void set(byte newVal);
+  void on(int index);
+  void off(int index);
+  void only(int index);
   byte get();
 
 private:

@@ -14,9 +14,9 @@
 #define PIN_MP3_RX 13
 #define PIN_MP3_TX 27
 
-#define PIN_DATA 23
+#define PIN_DATA 21
 #define PIN_LATCH 22
-#define PIN_CLOCK 21
+#define PIN_CLOCK 23
 
 #define PIN_RX 15
 #define PIN_TX 14
@@ -33,7 +33,7 @@
 // #define USE_SOUND
 // #define USE_COMMANDER
 // #define USE_VR
-// #define USE_SHIFT_REGISTER
+#define USE_SHIFT_REGISTER
 
 #ifdef USE_COMMANDER
 #include "SoftwareSerial.h"
@@ -120,7 +120,7 @@ void setupCommander() {
 #ifdef USE_SHIFT_REGISTER
 void setupShiftRegister() {
   pinMode(PIN_INTERNAL_LED, OUTPUT);
-  shiftRegister.set(0);
+  shiftRegister.set(255);
   shiftRegister.update();
 }
 #endif
@@ -162,7 +162,15 @@ void setup() {
 }
 
 int song = 0;
+int srTemp1 = 0;
+unsigned long lastChecked1 = 0;
 void loop() {
+  unsigned long now = millis();
+  if (now - lastChecked1 > 1000 * 1) {
+    srTemp1 = (++srTemp1) % 8;
+    shiftRegister.only(srTemp1);
+    lastChecked1 = now;
+  }
 
 #ifdef USE_COMMANDER
   // Check Command

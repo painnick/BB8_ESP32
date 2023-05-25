@@ -1,5 +1,9 @@
 #include "ShiftRegisterController.h"
 
+#include "esp_log.h"
+
+#define SR_TAG "SR"
+
 ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
                                                  uint8_t latch_pin,
                                                  uint8_t clock_pin)
@@ -12,15 +16,54 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
 
 void ShiftRegisterController::update() {
   if (changed) {
+    ESP_LOGI(SR_TAG, "UPDATE %d", value);
     digitalWrite(pin_latch, LOW);
     shiftOut(pin_data, pin_clock, LSBFIRST, value);
     digitalWrite(pin_latch, HIGH);
   }
+  changed = false;
 }
 
 void ShiftRegisterController::set(byte newVal) {
   if (value != newVal) {
     value = newVal;
+    ESP_LOGI(SR_TAG, "SR %d", value);
+    changed = true;
+  } else {
+    changed = false;
+  }
+}
+
+void ShiftRegisterController::on(int index) {
+  byte newVal = value;
+  bitSet(newVal, index);
+  if (value != newVal) {
+    value = newVal;
+    ESP_LOGI(SR_TAG, "SR %d", value);
+    changed = true;
+  } else {
+    changed = false;
+  }
+}
+
+void ShiftRegisterController::off(int index) {
+  byte newVal = value;
+  bitClear(newVal, index);
+  if (value != newVal) {
+    value = newVal;
+    ESP_LOGI(SR_TAG, "SR %d", value);
+    changed = true;
+  } else {
+    changed = false;
+  }
+}
+
+void ShiftRegisterController::only(int index) {
+  byte newVal = 0;
+  bitSet(newVal, index);
+  if (value != newVal) {
+    value = newVal;
+    ESP_LOGI(SR_TAG, "SR %d", value);
     changed = true;
   } else {
     changed = false;
