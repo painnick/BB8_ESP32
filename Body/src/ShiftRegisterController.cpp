@@ -3,18 +3,18 @@
 ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
                                                  uint8_t latch_pin,
                                                  uint8_t clock_pin)
-    : PIN_DATA(data_pin), PIN_LATCH(latch_pin), PIN_CLOCK(clock_pin), value(0),
+    : pin_data(data_pin), pin_latch(latch_pin), pin_clock(clock_pin), value(0),
       changed(false) {
-  pinMode(PIN_DATA, OUTPUT);
-  pinMode(PIN_LATCH, OUTPUT);
-  pinMode(PIN_CLOCK, OUTPUT);
+  pinMode(pin_data, OUTPUT);
+  pinMode(pin_latch, OUTPUT);
+  pinMode(pin_clock, OUTPUT);
 }
 
 void ShiftRegisterController::update() {
   if (changed) {
-    digitalWrite(PIN_LATCH, LOW);
-    shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, value);
-    digitalWrite(PIN_LATCH, HIGH);
+    digitalWrite(pin_latch, LOW);
+    shiftOut(pin_data, pin_clock, LSBFIRST, value);
+    digitalWrite(pin_latch, HIGH);
   }
 }
 

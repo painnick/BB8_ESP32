@@ -13,9 +13,9 @@ public:
   byte get();
 
 private:
-  uint8_t PIN_DATA;
-  uint8_t PIN_LATCH;
-  uint8_t PIN_CLOCK;
+  uint8_t pin_data;
+  uint8_t pin_latch;
+  uint8_t pin_clock;
 
   byte value;
   bool changed;

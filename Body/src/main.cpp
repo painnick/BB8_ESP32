@@ -5,18 +5,14 @@
 #include "soc/rtc_cntl_reg.h" // disable brownout problems
 #include "soc/soc.h"          // disable brownout problems
 
-#include "ShiftRegisterController.h"
-
-#include "VoiceRecognitionV3.h"
-
-#include "SoftwareSerial.h"
-
 #define MAIN_TAG "Main"
-#define MP3_TAG "DFPlayer"
 
 // These are all GPIO pins on the ESP32
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
 // for the ESP32-S2 the GPIO pins are 1-21,26,33-42
+
+#define PIN_MP3_RX 13
+#define PIN_MP3_TX 27
 
 #define PIN_DATA 23
 #define PIN_LATCH 22
@@ -34,21 +30,43 @@
 #define CHANNEL_MOTOR1 14
 #define CHANNEL_MOTOR2 15
 
-ShiftRegisterController controller(PIN_DATA, PIN_LATCH, PIN_CLOCK);
+// #define USE_SOUND
+// #define USE_COMMANDER
+// #define USE_VR
+// #define USE_SHIFT_REGISTER
 
+#ifdef USE_COMMANDER
+#include "SoftwareSerial.h"
+#endif
+
+#ifdef USE_VR
+#include "VoiceRecognitionV3.h"
+#endif
+
+#ifdef USE_SHIFT_REGISTER
+#include "ShiftRegisterController.h"
+
+ShiftRegisterController shiftRegister(PIN_DATA, PIN_LATCH, PIN_CLOCK);
+#endif
+
+#ifdef USE_VR
 VR myVR;
 uint8_t buf[255];
 uint8_t records[7];
+#endif
 
-#define PIN_MP3_RX 13
-#define PIN_MP3_TX 27
+#ifdef USE_SOUND
+#define MP3_TAG "DFPlayer"
 
 #include "DFMiniMp3.h"
+
 class Mp3Notify;
 typedef DFMiniMp3<SoftwareSerial, Mp3Notify> DfMp3;
 SoftwareSerial dfplayer(PIN_MP3_RX, PIN_MP3_TX);
 DfMp3 dfmp3(dfplayer);
+#endif
 
+#ifdef USE_COMMANDER
 #define cmdSerial Serial1
 
 #define COMMAND_DELIMETER "\r\n"
@@ -56,8 +74,10 @@ DfMp3 dfmp3(dfplayer);
 #define MAX_COMMAND_BUFFER_SZIE 50
 
 String cmdBuffer = "";
+#endif
 
-void setup() {
+#ifdef USE_VR
+void setupVR() {
   myVR.begin(9600);
   delay(500);
   records[0] = 0;
@@ -65,31 +85,47 @@ void setup() {
   records[2] = 2;
   records[3] = 3;
   int ret = myVR.setAutoLoad(records, 4);
-  ESP_LOGI(MAIN_TAG, "Setup VoiceRecognition");
+  if (ret != 0) {
+    ESP_LOGE(MAIN_TAG, "Fail to setup VoiceRecognition(%d)", ret);
+  } else {
+    ESP_LOGI(MAIN_TAG, "Setup VoiceRecognition");
+  }
+}
+#endif
 
-  // dfplayer.begin(9600, SWSERIAL_8N1, PIN_MP3_RX, PIN_MP3_TX, false);
+#ifdef USE_SOUND
+void setupSound() {
   dfmp3.begin(9600, 1000);
   dfmp3.reset();
 
   while (!dfmp3.isOnline()) {
-    delay(10);
+    delay(500);
+    ESP_LOGI(MAIN_TAG, "(dfmp3)...");
   }
 
   dfmp3.setVolume(18);
-  // dfmp3.loop();
-  // dfmp3.playRandomTrackFromAll();
-  // dfmp3.loop();
 
   ESP_LOGI(MAIN_TAG, "Setup DFPlayer");
+}
+#endif
 
+#ifdef USE_COMMANDER
+void setupCommander() {
   cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
   delay(500);
   ESP_LOGI(MAIN_TAG, "Setup Command-Serial");
+}
+#endif
 
+#ifdef USE_SHIFT_REGISTER
+void setupShiftRegister() {
   pinMode(PIN_INTERNAL_LED, OUTPUT);
-  controller.set(0);
-  controller.update();
+  shiftRegister.set(0);
+  shiftRegister.update();
+}
+#endif
 
+void setupMotor() {
   ledcSetup(CHANNEL_MOTOR1, 1000, 8); // 0~255
   ledcSetup(CHANNEL_MOTOR2, 1000, 8); // 0~255
 
@@ -98,21 +134,37 @@ void setup() {
 
   ledcWrite(CHANNEL_MOTOR1, 0);
   ledcWrite(CHANNEL_MOTOR2, 255);
-
-  ESP_LOGI(MAIN_TAG, "Setup Body");
-
-  cmdSerial.printf("NOP\r\n");
-  cmdSerial.printf("NOP\r\n");
 }
 
-// unsigned long lastMp3Checked = 0;
-void loop() {
-  // unsigned long now = millis();
-  // if (now - lastMp3Checked > 1000 * 10) {
-  //   dfmp3.nextTrack();
-  //   lastMp3Checked = now;
-  // }
+void setup() {
 
+  delay(1000);
+
+#ifdef USE_VR
+  setupVR();
+#endif
+
+#ifdef USE_SOUND
+  setupSound();
+#endif
+
+#ifdef USE_COMMANDER
+  setupCommander();
+#endif
+
+#ifdef USE_SHIFT_REGISTER
+  setupShiftRegister();
+#endif
+
+  setupMotor();
+
+  ESP_LOGI(MAIN_TAG, "Setup Body");
+}
+
+int song = 0;
+void loop() {
+
+#ifdef USE_COMMANDER
   // Check Command
   if (cmdSerial.available()) {
     // Append command-buffer
@@ -130,34 +182,58 @@ void loop() {
         ESP_LOGI(MAIN_TAG, "<= %s", cmd.c_str());
 
         if (cmd == "PLAY1") {
-          dfmp3.nextTrack();
+          int newSong = 1;
+          if (song != newSong) {
+#ifdef USE_SOUND
+            dfmp3.nextTrack();
+#endif
+            song = newSong;
+          }
+        } else if (cmd == "PLAY2") {
+          int newSong = 0;
+          if (song != newSong) {
+#ifdef USE_SOUND
+            dfmp3.stop();
+#endif
+            song = newSong;
+          }
         }
 
         byte curVal = 0;
-        controller.set(bitSet(curVal, 6));
+        shiftRegister.set(bitSet(curVal, 6));
         // delay(10);
       }
     }
   } else {
-    controller.set(0);
+    shiftRegister.set(0);
   }
+#endif
 
+#ifdef USE_VR
   // Check VoiceRecognition
   int ret = myVR.recognize(buf, 50);
   if (ret > 0) {
+#ifdef USE_COMMANDER
     int cmd = buf[2];
     cmdSerial.printf("LED%d\r\n", cmd);
     cmdSerial.flush();
     ESP_LOGI(MAIN_TAG, "=> LED%d", cmd);
 
     ESP_LOGI(MAIN_TAG, "!!!Command!!! %d", cmd);
+#endif
   }
+#endif
 
-  controller.update();
+#ifdef USE_SHIFT_REGISTER
+  shiftRegister.update();
+#endif
 
+#ifdef USE_SOUND
   dfmp3.loop();
+#endif
 }
 
+#ifdef USE_SOUND
 //----------------------------------------------------------------------------------
 class Mp3Notify {
 public:
@@ -220,3 +296,4 @@ public:
     PrintlnSourceAction(source, "removed");
   }
 };
+#endif

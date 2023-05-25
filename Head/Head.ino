@@ -1,12 +1,6 @@
-#include <Arduino.h>
-
-#include "esp_log.h"
+#include "common.h"
 
 #include "http_server.h"
-
-#define USE_SERIAL
-
-#define MAIN_TAG "Main"
 
 // These are all GPIO pins on the ESP32
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
@@ -20,12 +14,6 @@
 #define PIN_USED3 4
 // Right
 #define PIN_USED4 16
-
-#define COMMAND_DELIMETER "\r\n"
-#define COMMAND_DELIMETER_SIZE 2
-#define MAX_COMMAND_BUFFER_SZIE 50
-
-#define cmdSerial Serial1
 
 void process(String& cmd);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.h"
+
 #include "esp_camera.h"
 #include <WiFi.h>
 #include "esp_timer.h"
@@ -8,10 +10,6 @@
 #include "fd_forward.h"
 #include "esp_http_server.h"
 #include "esp_wifi.h"
-
-// #include "zaku_status.h"
-// #include "zaku_leds.h"
-// #include "zaku_servo.h"
 
 #define CAMERA_MODEL_AI_THINKER
 
