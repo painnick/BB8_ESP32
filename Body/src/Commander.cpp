@@ -6,8 +6,6 @@
 
 Commander Commander1(Serial1);
 
-void setupCommander() {}
-
 Commander::Commander(HardwareSerial &serial) : cmdSerial(serial) {}
 Commander::~Commander() {}
 

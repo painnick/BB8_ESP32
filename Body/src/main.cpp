@@ -31,10 +31,6 @@ void setup() {
   setupSound();
 #endif
 
-#ifdef USE_COMMANDER
-  setupCommander();
-#endif
-
 #ifdef USE_SHIFT_REGISTER
   setupShiftRegister();
 #endif
