@@ -20,6 +20,7 @@ public:
   ~Commander();
   void init(CommandCallnack callback);
   void loop();
+  void send(char* msg);
 
 private:
   HardwareSerial &cmdSerial;

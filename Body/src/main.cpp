@@ -12,7 +12,7 @@
 #define PIN_INTERNAL_LED 33
 
 #define USE_SOUND
-// #define USE_COMMANDER
+#define USE_COMMANDER
 #define USE_VR
 #define USE_SHIFT_REGISTER
 
@@ -64,14 +64,6 @@ void loop() {
   int ret = myVR.recognize(buf, 50);
   if (ret > 0) {
     ESP_LOGI(MAIN_TAG, "VR %d", ret);
-#ifdef USE_COMMANDER
-    int cmd = buf[2];
-    cmdSerial.printf("LED%d\r\n", cmd);
-    cmdSerial.flush();
-    ESP_LOGI(MAIN_TAG, "=> LED%d", cmd);
-
-    ESP_LOGI(MAIN_TAG, "!!!Command!!! %d", cmd);
-#endif
   }
 #endif
 

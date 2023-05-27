@@ -38,3 +38,9 @@ void Commander::loop() {
     }
   }
 }
+
+void Commander::send(char *msg) {
+  cmdSerial.printf("%s\r\n", msg);
+  cmdSerial.flush();
+  ESP_LOGI(COMMANDER_TAG, "=> %s", msg);
+}
