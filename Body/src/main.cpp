@@ -38,10 +38,15 @@ void setup() {
     }
   });
 
+  commander1.init([](const Commander *, const String &cmd) -> void {
+    ESP_LOGI(MAIN_TAG, "===> Command : %s", cmd.c_str());
+  });
+
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
 void loop() {
+  commander1.loop();
   shiftRegister.update();
   vr.loop();
   dfmp3.loop();

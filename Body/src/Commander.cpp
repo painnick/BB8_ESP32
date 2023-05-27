@@ -4,7 +4,7 @@
 #define COMMAND_DELIMETER_SIZE 2
 #define MAX_COMMAND_BUFFER_SZIE 50
 
-Commander Commander1(Serial1);
+Commander commander1(Serial1);
 
 Commander::Commander(HardwareSerial &serial) : cmdSerial(serial) {}
 Commander::~Commander() {}

@@ -27,3 +27,5 @@ private:
   String cmdBuffer = "";
   CommandCallnack proc;
 };
+
+extern Commander commander1;
