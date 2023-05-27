@@ -11,10 +11,8 @@
 #define PIN_FLASH_LED 4
 #define PIN_INTERNAL_LED 33
 
-#define USE_SOUND
 #define USE_COMMANDER
 #define USE_VR
-#define USE_SHIFT_REGISTER
 
 #include "Commander.h"
 #include "MotorController.h"
@@ -25,31 +23,15 @@
 
 void setup() {
 
+  ESP_LOGI(MAIN_TAG, "Setup...");
   delay(1000);
 
-#ifdef USE_SOUND
   setupSound();
-#endif
 
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
-int song = 0;
-// int srTemp1 = 0;
-unsigned long lastChecked1 = 0;
 void loop() {
-  // unsigned long now = millis();
-  // if (now - lastChecked1 > 1000 * 1) {
-  //   srTemp1 = (++srTemp1) % 8;
-  //   shiftRegister.only(srTemp1);
-  //   lastChecked1 = now;
-  // }
-
-#ifdef USE_SHIFT_REGISTER
   shiftRegister.update();
-#endif
-
-#ifdef USE_SOUND
   dfmp3.loop();
-#endif
 }

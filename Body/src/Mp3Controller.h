@@ -78,19 +78,20 @@ SoftwareSerial dfSerial(PIN_MP3_RX, PIN_MP3_TX);
 DfMp3 dfmp3(dfSerial);
 
 void setupSound() {
+
   dfmp3.begin(9600, 1000);
   dfmp3.reset();
 
   delay(500);
 
   // while (!dfmp3.isOnline()) {
-  //   delay(100);
-  //   // ESP_LOGI(MAIN_TAG, "(dfmp3)...");
+  //   delay(10);
   // }
+  // ESP_LOGI(MP3_TAG, "dfmp3 is online");
 
   dfmp3.setVolume(18);
 
   dfmp3.playRandomTrackFromAll();
 
-  ESP_LOGI(MAIN_TAG, "Setup DFPlayer");
+  ESP_LOGI(MP3_TAG, "Setup DFPlayer");
 }
