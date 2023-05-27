@@ -24,14 +24,25 @@
 void setup() {
 
   ESP_LOGI(MAIN_TAG, "Setup...");
-  delay(1000);
 
   setupSound();
+
+  vr.init([](int cmd) -> void {
+    switch (cmd) {
+    case 0: // HELLO
+      dfmp3.playRandomTrackFromAll();
+      break;
+    default:
+      dfmp3.stop();
+      break;
+    }
+  });
 
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
 void loop() {
   shiftRegister.update();
+  vr.loop();
   dfmp3.loop();
 }

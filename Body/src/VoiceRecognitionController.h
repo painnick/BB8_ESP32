@@ -23,3 +23,5 @@ private:
   uint8_t buf[255];
   uint8_t records[7];
 };
+
+extern VoiceRecognitionController vr;
