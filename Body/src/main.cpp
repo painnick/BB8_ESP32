@@ -8,9 +8,6 @@
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
 // for the ESP32-S2 the GPIO pins are 1-21,26,33-42
 
-#define PIN_RX 15
-#define PIN_TX 14
-
 #define PIN_FLASH_LED 4
 #define PIN_INTERNAL_LED 33
 
@@ -19,29 +16,12 @@
 #define USE_VR
 #define USE_SHIFT_REGISTER
 
+#include "Commander.h"
 #include "MotorController.h"
 #include "Mp3Controller.h"
 #include "ShiftRegisterController.h"
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
-
-#ifdef USE_COMMANDER
-#define cmdSerial Serial1
-
-#define COMMAND_DELIMETER "\r\n"
-#define COMMAND_DELIMETER_SIZE 2
-#define MAX_COMMAND_BUFFER_SZIE 50
-
-String cmdBuffer = "";
-#endif
-
-#ifdef USE_COMMANDER
-void setupCommander() {
-  cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
-  delay(500);
-  ESP_LOGI(MAIN_TAG, "Setup Command-Serial");
-}
-#endif
 
 void setup() {
 
@@ -78,51 +58,6 @@ void loop() {
   //   shiftRegister.only(srTemp1);
   //   lastChecked1 = now;
   // }
-
-#ifdef USE_COMMANDER
-  // Check Command
-  if (cmdSerial.available()) {
-    // Append command-buffer
-    while (cmdSerial.available()) {
-      cmdBuffer += (char)cmdSerial.read();
-    }
-    // Check size of command-buffer
-    if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SZIE) {
-      cmdBuffer = "";
-    } else {
-      int found = cmdBuffer.indexOf(COMMAND_DELIMETER);
-      if (found != -1) {
-        String cmd = cmdBuffer.substring(0, found);
-        cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
-        ESP_LOGI(MAIN_TAG, "<= %s", cmd.c_str());
-
-        if (cmd == "PLAY1") {
-          int newSong = 1;
-          if (song != newSong) {
-#ifdef USE_SOUND
-            dfmp3.nextTrack();
-#endif
-            song = newSong;
-          }
-        } else if (cmd == "PLAY2") {
-          int newSong = 0;
-          if (song != newSong) {
-#ifdef USE_SOUND
-            dfmp3.stop();
-#endif
-            song = newSong;
-          }
-        }
-
-        byte curVal = 0;
-        shiftRegister.set(bitSet(curVal, 6));
-        // delay(10);
-      }
-    }
-  } else {
-    shiftRegister.set(0);
-  }
-#endif
 
 #ifdef USE_VR
   // Check VoiceRecognition
