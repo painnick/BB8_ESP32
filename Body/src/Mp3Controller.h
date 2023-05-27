@@ -78,9 +78,12 @@ DfMp3 dfmp3(dfSerial);
 void setupSound() {
 
   dfmp3.begin(9600, 1000);
-  dfmp3.reset();
+  while (!dfSerial.available()) {
+    delay(1);
+  }
 
   dfmp3.stop();
+
   dfmp3.setVolume(18);
 
   ESP_LOGI(MP3_TAG, "Setup DFPlayer");
