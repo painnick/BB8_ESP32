@@ -30,17 +30,11 @@
 #endif
 
 #ifdef USE_VR
-#include "VoiceRecognitionV3.h"
+#include "VoiceRecognitionController.h"
 #endif
 
 #ifdef USE_SHIFT_REGISTER
 #include "ShiftRegisterController.h"
-#endif
-
-#ifdef USE_VR
-VR myVR;
-uint8_t buf[255];
-uint8_t records[7];
 #endif
 
 #ifdef USE_SOUND
@@ -55,23 +49,6 @@ uint8_t records[7];
 #define MAX_COMMAND_BUFFER_SZIE 50
 
 String cmdBuffer = "";
-#endif
-
-#ifdef USE_VR
-void setupVR() {
-  myVR.begin(9600);
-  delay(500);
-  records[0] = 0;
-  records[1] = 1;
-  records[2] = 2;
-  records[3] = 3;
-  int ret = myVR.setAutoLoad(records, 4);
-  if (ret != 0) {
-    ESP_LOGE(MAIN_TAG, "Fail to setup VoiceRecognition(%d)", ret);
-  } else {
-    ESP_LOGI(MAIN_TAG, "Setup VoiceRecognition");
-  }
-}
 #endif
 
 #ifdef USE_COMMANDER
