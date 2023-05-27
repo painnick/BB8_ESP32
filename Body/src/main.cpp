@@ -50,7 +50,7 @@ void setup() {
   motor1.init();
 
   commander1.init([](const Commander *, const String &cmd) -> void {
-    ESP_LOGI(MAIN_TAG, "===> Command : %s", cmd.c_str());
+    ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
   });
 
   ESP_LOGI(MAIN_TAG, "Setup Body");

@@ -16,7 +16,7 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
 
 void ShiftRegisterController::update() {
   if (changed) {
-    ESP_LOGI(SR_TAG, "UPDATE %d", value);
+    ESP_LOGD(SR_TAG, "UPDATE %d", value);
     digitalWrite(pin_latch, LOW);
     shiftOut(pin_data, pin_clock, LSBFIRST, value);
     digitalWrite(pin_latch, HIGH);
@@ -27,7 +27,7 @@ void ShiftRegisterController::update() {
 void ShiftRegisterController::set(byte newVal) {
   if (value != newVal) {
     value = newVal;
-    ESP_LOGI(SR_TAG, "SR %d", value);
+    ESP_LOGD(SR_TAG, "SR %d", value);
     changed = true;
   } else {
     changed = false;
@@ -39,7 +39,7 @@ void ShiftRegisterController::on(int index) {
   bitSet(newVal, index);
   if (value != newVal) {
     value = newVal;
-    ESP_LOGI(SR_TAG, "SR %d", value);
+    ESP_LOGD(SR_TAG, "SR %d", value);
     changed = true;
   } else {
     changed = false;
@@ -51,7 +51,7 @@ void ShiftRegisterController::off(int index) {
   bitClear(newVal, index);
   if (value != newVal) {
     value = newVal;
-    ESP_LOGI(SR_TAG, "SR %d", value);
+    ESP_LOGD(SR_TAG, "SR %d", value);
     changed = true;
   } else {
     changed = false;
@@ -63,7 +63,7 @@ void ShiftRegisterController::only(int index) {
   bitSet(newVal, index);
   if (value != newVal) {
     value = newVal;
-    ESP_LOGI(SR_TAG, "SR %d", value);
+    ESP_LOGD(SR_TAG, "SR %d", value);
     changed = true;
   } else {
     changed = false;

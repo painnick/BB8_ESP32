@@ -30,7 +30,7 @@ void Commander::loop() {
       if (found != -1) {
         String cmd = cmdBuffer.substring(0, found);
         cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
-        ESP_LOGI(COMMANDER_TAG, "<= %s", cmd.c_str());
+        ESP_LOGV(COMMANDER_TAG, "<= %s", cmd.c_str());
         proc(this, cmd);
       }
     }
@@ -40,5 +40,5 @@ void Commander::loop() {
 void Commander::send(char *msg) {
   cmdSerial.printf("%s\r\n", msg);
   cmdSerial.flush();
-  ESP_LOGI(COMMANDER_TAG, "=> %s", msg);
+  ESP_LOGD(COMMANDER_TAG, "=> %s", msg);
 }

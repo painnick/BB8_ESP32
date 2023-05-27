@@ -38,21 +38,21 @@ void MotorController::internalLeft() {
   dir = MOTOR_DIRECTION::LEFT;
   ledcWrite(CHANNEL_MOTOR1, 0);
   ledcWrite(CHANNEL_MOTOR2, 255);
-  ESP_LOGI(MOTOR_TAG, "Left");
+  ESP_LOGD(MOTOR_TAG, "Left");
 }
 
 void MotorController::internalRight() {
   dir = MOTOR_DIRECTION::RIGHT;
   ledcWrite(CHANNEL_MOTOR1, 255);
   ledcWrite(CHANNEL_MOTOR2, 0);
-  ESP_LOGI(MOTOR_TAG, "Right");
+  ESP_LOGD(MOTOR_TAG, "Right");
 }
 
 void MotorController::stop() {
   dir = MOTOR_DIRECTION::STOP;
   ledcWrite(CHANNEL_MOTOR1, 0);
   ledcWrite(CHANNEL_MOTOR2, 0);
-  ESP_LOGI(MOTOR_TAG, "Stop");
+  ESP_LOGD(MOTOR_TAG, "Stop");
 }
 
 MotorController motor1;

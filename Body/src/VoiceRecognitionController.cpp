@@ -10,7 +10,6 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
   proc = callback;
 
   vr.begin(9600);
-  ESP_LOGI(VR_TAG, "Serial for VoiceRecognition begin");
 
   int commandCount = 7;
   // Set AutoLoad
@@ -24,8 +23,8 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
     ESP_LOGI(VR_TAG, "Setup VoiceRecognition");
   }
 
-  ESP_LOGI(VR_TAG, "=====================================");
-  ESP_LOGI(VR_TAG, "Trained");
+  ESP_LOGD(VR_TAG, "=====================================");
+  ESP_LOGD(VR_TAG, "Trained");
   uint8_t signaturs[50];
   for (int i = 0; i < 10; i++) {
     // Clear Buffer
@@ -38,7 +37,7 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
       ESP_LOGI(VR_TAG, " %d. %s", i, signaturs);
     }
   }
-  ESP_LOGI(VR_TAG, "=====================================");
+  ESP_LOGD(VR_TAG, "=====================================");
 
   return ret;
 }
@@ -52,7 +51,7 @@ void VoiceRecognitionController::loop() {
     for (int i = 0; i < len; i++) {
       newBuf[i] = buf[4 + i];
     }
-    ESP_LOGI(VR_TAG, "SIG %d %s", cmd, newBuf);
+    ESP_LOGD(VR_TAG, "SIG %d %s", cmd, newBuf);
     proc(cmd);
   }
 }
