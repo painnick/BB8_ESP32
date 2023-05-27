@@ -26,6 +26,11 @@ License along with DFMiniMp3.  If not, see
 #pragma once
 
 #define USE_MH2024K16SS
+#define _DEBUG
+
+#include "esp_log.h"
+
+#define TAG "MINIMP3"
 
 #include <stdint.h>
 
@@ -402,30 +407,22 @@ private:
     _lastSendSpace = sendSpaceNeeded;
 
 #ifdef _DEBUG
-    Serial.print("==>");
-    Serial.print(" (STR)");
-    Serial.print(packet.startCode, HEX);
-    Serial.print(" (VER)");
-    Serial.print(packet.version, HEX);
-    Serial.print(" (LEN)");
-    Serial.print(packet.length, HEX);
-    Serial.print(" (CMD)");
-    Serial.print(packet.command, HEX);
-    Serial.print(" (ACK)");
-    Serial.print(packet.requestAck, HEX);
-    Serial.print(" (PAR1)");
-    Serial.print(packet.hiByteArgument, HEX);
-    Serial.print(" (PAR2)");
-    Serial.print(packet.lowByteArgument, HEX);
-#ifndef USE_MH2024K16SS
-    Serial.print(" (CHK1)");
-    Serial.print(packet.hiByteCheckSum, HEX);
-    Serial.print(" (CHK2)");
-    Serial.print(packet.lowByteCheckSum, HEX);
+#ifdef USE_MH2024K16SS
+    ESP_LOGV(
+        TAG,
+        "==> (STR) %02X (VER) %02X (LEN) %02X (CMD) %02X (ACK) %02X (PAR1) "
+        "%02X (PAR2) %02X.",
+        packet.startCode, packet.version, packet.length, packet.command,
+        packet.requestAck, packet.hiByteArgument, packet.lowByteArgument);
+#else
+    ESP_LOGV(
+        TAG,
+        "==> (STR) %02X (VER) %02X (LEN) %02X (CMD) %02X (ACK) %02X (PAR1) "
+        "%02X (PAR2) %02X (CHK1) %02X (CHK2) %02X.",
+        packet.startCode, packet.version, packet.length, packet.command,
+        packet.requestAck, packet.hiByteArgument, packet.lowByteArgument,
+        packet.hiByteCheckSum, packet.lowByteCheckSum);
 #endif
-    // Serial.print(" (END)");
-    // Serial.print(packet.endCode, HEX);
-    Serial.println(".");
 #endif
 
     _serial.write(reinterpret_cast<uint8_t *>(&packet), sizeof(packet));
@@ -475,12 +472,8 @@ private:
     }
 
 #ifdef _DEBUG
-    Serial.print(F("<== (CMD)"));
-    Serial.print(in.command, HEX);
-    Serial.print(F(" (PAR1)"));
-    Serial.print(in.hiByteArgument, HEX);
-    Serial.print(F(" (PAR2)"));
-    Serial.println(in.lowByteArgument, HEX);
+    ESP_LOGV(TAG, "<== (CMD) %02X (PAR1) %02X (PAR2) %02X.", in.command,
+             in.hiByteArgument, in.lowByteArgument);
 #endif
     *command = in.command;
     *argument = ((in.hiByteArgument << 8) | in.lowByteArgument);
