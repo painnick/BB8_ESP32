@@ -4,6 +4,10 @@
 
 #define SR_TAG "SR"
 
+#define PIN_DATA 21
+#define PIN_LATCH 22
+#define PIN_CLOCK 23
+
 class ShiftRegisterController {
 public:
   ShiftRegisterController(uint8_t data_pin, uint8_t latch_pin,
@@ -23,3 +27,6 @@ private:
   byte value;
   bool changed;
 };
+
+extern ShiftRegisterController shiftRegister;
+void setupShiftRegister();

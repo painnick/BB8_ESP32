@@ -8,10 +8,6 @@
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
 // for the ESP32-S2 the GPIO pins are 1-21,26,33-42
 
-#define PIN_DATA 21
-#define PIN_LATCH 22
-#define PIN_CLOCK 23
-
 #define PIN_RX 15
 #define PIN_TX 14
 
@@ -39,8 +35,6 @@
 
 #ifdef USE_SHIFT_REGISTER
 #include "ShiftRegisterController.h"
-
-ShiftRegisterController shiftRegister(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 #endif
 
 #ifdef USE_VR
@@ -85,14 +79,6 @@ void setupCommander() {
   cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
   delay(500);
   ESP_LOGI(MAIN_TAG, "Setup Command-Serial");
-}
-#endif
-
-#ifdef USE_SHIFT_REGISTER
-void setupShiftRegister() {
-  pinMode(PIN_INTERNAL_LED, OUTPUT);
-  shiftRegister.set(255);
-  shiftRegister.update();
 }
 #endif
 

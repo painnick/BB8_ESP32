@@ -2,7 +2,12 @@
 
 #include "esp_log.h"
 
-#define SR_TAG "SR"
+ShiftRegisterController shiftRegister(PIN_DATA, PIN_LATCH, PIN_CLOCK);
+
+void setupShiftRegister() {
+  shiftRegister.set(255);
+  shiftRegister.update();
+}
 
 ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
                                                  uint8_t latch_pin,
