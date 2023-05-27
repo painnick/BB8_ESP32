@@ -32,11 +32,22 @@ void setup() {
     case 0: // HELLO
       dfmp3.playRandomTrackFromAll();
       break;
+    case 2: // RIGHT
+      motor1.right(1000 * 3);
+      break;
+    case 3: // LEFT
+      motor1.left(1000 * 3);
+      break;
+    case 4: // STOP
+      motor1.stop();
+      break;
     default:
       dfmp3.stop();
       break;
     }
   });
+
+  motor1.init();
 
   commander1.init([](const Commander *, const String &cmd) -> void {
     ESP_LOGI(MAIN_TAG, "===> Command : %s", cmd.c_str());
@@ -46,6 +57,7 @@ void setup() {
 }
 
 void loop() {
+  motor1.loop();
   commander1.loop();
   shiftRegister.update();
   vr.loop();

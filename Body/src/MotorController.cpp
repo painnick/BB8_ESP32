@@ -1,6 +1,7 @@
 #include "MotorController.h"
 
-MotorController::MotorController() {}
+MotorController::MotorController()
+    : targetMoveMs(0), dir(MOTOR_DIRECTION::STOP) {}
 
 MotorController::~MotorController() {}
 
@@ -14,3 +15,47 @@ void MotorController::init() {
   ledcWrite(CHANNEL_MOTOR1, 0);
   ledcWrite(CHANNEL_MOTOR2, 255);
 }
+
+void MotorController::left(unsigned long ms) {
+  unsigned long now = millis();
+  targetMoveMs = now + ms;
+  internalLeft();
+}
+
+void MotorController::right(unsigned long ms) {
+  unsigned long now = millis();
+  targetMoveMs = now + ms;
+  internalRight();
+}
+
+void MotorController::loop() {
+  if (dir != MOTOR_DIRECTION::STOP) {
+    unsigned long now = millis();
+    if (targetMoveMs - now < 100) {
+      stop();
+    }
+  }
+}
+
+void MotorController::internalLeft() {
+  dir = MOTOR_DIRECTION::LEFT;
+  ledcWrite(CHANNEL_MOTOR1, 0);
+  ledcWrite(CHANNEL_MOTOR2, 255);
+  ESP_LOGI(MOTOR_TAG, "Left");
+}
+
+void MotorController::internalRight() {
+  dir = MOTOR_DIRECTION::RIGHT;
+  ledcWrite(CHANNEL_MOTOR1, 255);
+  ledcWrite(CHANNEL_MOTOR2, 0);
+  ESP_LOGI(MOTOR_TAG, "Right");
+}
+
+void MotorController::stop() {
+  dir = MOTOR_DIRECTION::STOP;
+  ledcWrite(CHANNEL_MOTOR1, 0);
+  ledcWrite(CHANNEL_MOTOR2, 0);
+  ESP_LOGI(MOTOR_TAG, "Stop");
+}
+
+MotorController motor1;
