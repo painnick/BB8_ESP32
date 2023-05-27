@@ -1104,20 +1104,13 @@ int VR ::writehex(uint8_t *buf, uint8_t len) {
 void VR ::send_pkt(uint8_t cmd, uint8_t subcmd, uint8_t *buf, uint8_t len) {
   while (Serial2.available()) {
     Serial2.read(); // replace flush();
-    // delay(TXDLY);
   }
   Serial2.write(FRAME_HEAD);
-  // delay(TXDLY);
   Serial2.write(len + 3);
-  // delay(TXDLY);
   Serial2.write(cmd);
-  // delay(TXDLY);
   Serial2.write(subcmd);
-  // delay(TXDLY);
   Serial2.write(buf, len);
-  // delay(TXDLY);
   Serial2.write(FRAME_END);
-  // delay(TXDLY);
 }
 
 /**
@@ -1129,18 +1122,12 @@ void VR ::send_pkt(uint8_t cmd, uint8_t subcmd, uint8_t *buf, uint8_t len) {
 void VR ::send_pkt(uint8_t cmd, uint8_t *buf, uint8_t len) {
   while (Serial2.available()) {
     Serial2.read(); // replace flush();
-    // delay(TXDLY);
   }
   Serial2.write(FRAME_HEAD);
-  // delay(TXDLY);
   Serial2.write(len + 2);
-  // delay(TXDLY);
   Serial2.write(cmd);
-  // delay(TXDLY);
   Serial2.write(buf, len);
-  // delay(TXDLY);
   Serial2.write(FRAME_END);
-  // delay(TXDLY);
 }
 
 /**
@@ -1180,11 +1167,11 @@ int VR ::receive_pkt(uint8_t *buf, uint16_t timeout) {
     return -1;
   }
   if (buf[0] != FRAME_HEAD) {
-    ESP_LOGE(VR_TAG, "Invalid frame-head");
+    ESP_LOGE(VR_TAG, "Invalid frame-head %02X", buf[0]);
     return -2;
   }
   if (buf[1] < 2) {
-    ESP_LOGE(VR_TAG, "Invalid frame-length");
+    ESP_LOGE(VR_TAG, "Invalid frame-length %d", buf[1]);
     return -3;
   }
   ret = receive(buf + 2, buf[1], timeout);
