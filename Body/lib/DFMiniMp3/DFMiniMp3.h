@@ -26,7 +26,7 @@ License along with DFMiniMp3.  If not, see
 #pragma once
 
 #define USE_MH2024K16SS
-#define _DEBUG
+// #define _DEBUG
 
 #include "esp_log.h"
 
