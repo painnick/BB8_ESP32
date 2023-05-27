@@ -11,9 +11,6 @@ void MotorController::init() {
 
   ledcAttachPin(PIN_MOTOR1, CHANNEL_MOTOR1);
   ledcAttachPin(PIN_MOTOR2, CHANNEL_MOTOR2);
-
-  ledcWrite(CHANNEL_MOTOR1, 0);
-  ledcWrite(CHANNEL_MOTOR2, 255);
 }
 
 void MotorController::left(unsigned long ms) {
