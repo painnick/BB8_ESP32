@@ -7,21 +7,19 @@
 // #define RXD2 16
 // #define TXD2 17
 
-VR myVR;
-uint8_t buf[255];
+class VoiceRecognitionController;
+typedef std::function<void(int cmd)> VoiceRecognitionCallback;
 
-void setupVR() {
-  myVR.begin(9600);
-  delay(500);
+class VoiceRecognitionController {
+public:
+  VoiceRecognitionController();
+  ~VoiceRecognitionController();
+  int init(VoiceRecognitionCallback callback);
+  void loop();
+
+private:
+  VR vr;
+  VoiceRecognitionCallback proc;
+  uint8_t buf[255];
   uint8_t records[7];
-  records[0] = 0;
-  records[1] = 1;
-  records[2] = 2;
-  records[3] = 3;
-  int ret = myVR.setAutoLoad(records, 4);
-  if (ret != 0) {
-    ESP_LOGE(VR_TAG, "Fail to setup VoiceRecognition(%d)", ret);
-  } else {
-    ESP_LOGI(VR_TAG, "Setup VoiceRecognition");
-  }
-}
+};
