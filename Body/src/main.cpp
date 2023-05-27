@@ -27,10 +27,6 @@ void setup() {
 
   delay(1000);
 
-#ifdef USE_VR
-  setupVR();
-#endif
-
 #ifdef USE_SOUND
   setupSound();
 #endif
@@ -58,14 +54,6 @@ void loop() {
   //   shiftRegister.only(srTemp1);
   //   lastChecked1 = now;
   // }
-
-#ifdef USE_VR
-  // Check VoiceRecognition
-  int ret = myVR.recognize(buf, 50);
-  if (ret > 0) {
-    ESP_LOGI(MAIN_TAG, "VR %d", ret);
-  }
-#endif
 
 #ifdef USE_SHIFT_REGISTER
   shiftRegister.update();
