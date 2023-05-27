@@ -924,10 +924,12 @@ int VR ::setAutoLoad(uint8_t *records, uint8_t len) {
   send_pkt(FRAME_CMD_SET_AL, map, records, len);
   ret = receive_pkt(vr_buf);
   if (ret <= 0) {
-    return -1;
+    ESP_LOGE(VR_TAG, "Error receive_pkt(%d)", ret);
+    return -2;
   }
   if (vr_buf[2] != FRAME_CMD_SET_AL) {
-    return -1;
+    ESP_LOGE(VR_TAG, "Receive_pkt is not SetAutoLoad");
+    return -3;
   }
   return 0;
 }
@@ -1174,20 +1176,22 @@ int VR ::receive_pkt(uint8_t *buf, uint16_t timeout) {
 
   ret = receive(buf, 2, timeout);
   if (ret != 2) {
+    // ESP_LOGV(VR_TAG, "Cannot read 2bytes(%d)", ret);
     return -1;
   }
   if (buf[0] != FRAME_HEAD) {
+    ESP_LOGE(VR_TAG, "Invalid frame-head");
     return -2;
   }
   if (buf[1] < 2) {
+    ESP_LOGE(VR_TAG, "Invalid frame-length");
     return -3;
   }
   ret = receive(buf + 2, buf[1], timeout);
   if (buf[buf[1] + 1] != FRAME_END) {
+    ESP_LOGE(VR_TAG, "Invalid frame-end");
     return -4;
   }
-
-  //	DBGBUF(buf, buf[1]+2);
 
   return buf[1] + 2;
 }
