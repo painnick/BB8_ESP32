@@ -6,8 +6,8 @@
 
 #define MP3_TAG "DFPLAYER"
 
-#define PIN_MP3_RX 27
-#define PIN_MP3_TX 13
+#define PIN_MP3_RX 26
+#define PIN_MP3_TX 27
 
 class Mp3Notify;
 typedef DFMiniMp3<SoftwareSerial, Mp3Notify> DfMp3;
@@ -28,8 +28,6 @@ public:
   }
   static void OnError(DfMp3 &mp3, uint16_t errorCode) {
     // see DfMp3_Error for code meaning
-    Serial.println();
-    Serial.print("Com Error ");
     switch (errorCode) {
     case DfMp3_Error_Busy:
       ESP_LOGE(MP3_TAG, "Com Error - Busy");
@@ -82,16 +80,8 @@ void setupSound() {
   dfmp3.begin(9600, 1000);
   dfmp3.reset();
 
-  delay(500);
-
-  // while (!dfmp3.isOnline()) {
-  //   delay(10);
-  // }
-  // ESP_LOGI(MP3_TAG, "dfmp3 is online");
-
+  dfmp3.stop();
   dfmp3.setVolume(18);
-
-  dfmp3.playRandomTrackFromAll();
 
   ESP_LOGI(MP3_TAG, "Setup DFPlayer");
 }
