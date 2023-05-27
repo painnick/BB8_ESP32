@@ -29,4 +29,3 @@ private:
 };
 
 extern ShiftRegisterController shiftRegister;
-void setupShiftRegister();

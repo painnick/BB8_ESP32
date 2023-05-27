@@ -31,10 +31,6 @@ void setup() {
   setupSound();
 #endif
 
-#ifdef USE_SHIFT_REGISTER
-  setupShiftRegister();
-#endif
-
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
