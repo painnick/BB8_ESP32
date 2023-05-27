@@ -35,8 +35,6 @@ void setup() {
   setupShiftRegister();
 #endif
 
-  setupMotor();
-
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
