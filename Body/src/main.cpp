@@ -28,7 +28,7 @@
 #define SOUND_SLEEP 5
 #define SOUND_THEME 6
 
-void setup() {  
+void setup() {
 
   ESP_LOGI(MAIN_TAG, "Setup...");
 
@@ -46,10 +46,10 @@ void setup() {
       motor1.stop();
       break;
     case 2: // RIGHT
-      motor1.right(1000 * 3);
+      motor1.right(500);
       break;
     case 3: // LEFT
-      motor1.left(1000 * 3);
+      motor1.left(500);
       break;
     case 4: // STOP
       dfmp3.stop();
@@ -65,6 +65,11 @@ void setup() {
 
   commander1.init([](const Commander *, const String &cmd) -> void {
     ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
+    if (cmd == "Left") {
+      motor1.left(80);
+    } else if (cmd == "Right") {
+      motor1.right(80);
+    }
   });
 
   ESP_LOGI(MAIN_TAG, "Setup Body");

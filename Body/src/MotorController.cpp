@@ -1,5 +1,7 @@
 #include "MotorController.h"
 
+#define MOTOR_POWER 230
+
 MotorController::MotorController()
     : targetMoveMs(0), dir(MOTOR_DIRECTION::STOP) {}
 
@@ -37,13 +39,13 @@ void MotorController::loop() {
 void MotorController::internalLeft() {
   dir = MOTOR_DIRECTION::LEFT;
   ledcWrite(CHANNEL_MOTOR1, 0);
-  ledcWrite(CHANNEL_MOTOR2, 255);
+  ledcWrite(CHANNEL_MOTOR2, MOTOR_POWER);
   ESP_LOGD(MOTOR_TAG, "Left");
 }
 
 void MotorController::internalRight() {
   dir = MOTOR_DIRECTION::RIGHT;
-  ledcWrite(CHANNEL_MOTOR1, 255);
+  ledcWrite(CHANNEL_MOTOR1, MOTOR_POWER);
   ledcWrite(CHANNEL_MOTOR2, 0);
   ESP_LOGD(MOTOR_TAG, "Right");
 }
