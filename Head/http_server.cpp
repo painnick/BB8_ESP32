@@ -151,7 +151,7 @@ static esp_err_t head_handler(httpd_req_t *req){
   //s->set_hmirror(s, 1);          // 0 = disable , 1 = enable
 
   if(!strcmp(direction, "left")) {
-    cmdSerial.printf("PLAY1");
+    cmdSerial.printf("Left");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
     // uint32_t pos = zakuServo.left(angle);
@@ -159,7 +159,7 @@ static esp_err_t head_handler(httpd_req_t *req){
     // Serial.println(pos);
   }
   else if(!strcmp(direction, "right")) {
-    cmdSerial.printf("PLAY2");
+    cmdSerial.printf("Right");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
     // uint32_t pos = zakuServo.right(angle);

@@ -18,7 +18,7 @@
 void process(String& cmd);
 
 void setup() {
-#ifdef USE_SERIAL
+#ifdef USE_SERIAL_DEBUG
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   
@@ -30,19 +30,17 @@ void setup() {
   initCamera();
   initCameraServer();
   startCameraServer();
-#ifdef USE_SERIAL
+#ifdef USE_SERIAL_DEBUG
   Serial.println("Setup Camera.");
 #endif
 
   cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
-#ifdef USE_SERIAL
+#ifdef USE_SERIAL_DEBUG
   Serial.println("Setup Serial.");
 #endif
 
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_LED2, OUTPUT);
-  pinMode(PIN_USED3, OUTPUT);
-  pinMode(PIN_USED4, OUTPUT);
 }
 
 unsigned long lastTime = 0;
@@ -54,7 +52,7 @@ void loop() {
     cmdSerial.printf("Keep.");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-#ifdef USE_SERIAL
+#ifdef USE_SERIAL_DEBUG
       Serial.println("=> Keep.");
 #endif
   }
@@ -71,7 +69,7 @@ void loop() {
     if (found != -1) {
       String cmd = cmdBuffer.substring(0, found);
       cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
-#ifdef USE_SERIAL
+#ifdef USE_SERIAL_DEBUG
       Serial.println("<= " + cmd);
 #endif
       process(cmd);
@@ -81,23 +79,36 @@ void loop() {
 }
 
 void process(String& cmd) {
-
-  digitalWrite(PIN_LED1, LOW);
-  digitalWrite(PIN_LED2, LOW);
-
-  if (cmd == "LED1") {
+  if (cmd == "LED1ON") {
     digitalWrite(PIN_LED1, HIGH);
 
-    cmdSerial.printf("PLAY1");
+    cmdSerial.printf("ACK %s", cmd.c_str());
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
+  }
+  else if (cmd == "LED1OFF") {
+    digitalWrite(PIN_LED1, LOW);
 
-#ifdef USE_SERIAL
-    Serial.println("=> OK. LED1");
-#endif
-  } else {
+    cmdSerial.printf("ACK %s", cmd.c_str());
+    cmdSerial.printf(COMMAND_DELIMETER);
+    cmdSerial.flush();
+  }
+  else if (cmd == "LED2ON") {
     digitalWrite(PIN_LED2, HIGH);
-#ifdef USE_SERIAL
+
+    cmdSerial.printf("ACK %s", cmd.c_str());
+    cmdSerial.printf(COMMAND_DELIMETER);
+    cmdSerial.flush();
+  }
+  else if (cmd == "LED2OFF") {
+    digitalWrite(PIN_LED2, LOW);
+
+    cmdSerial.printf("ACK %s", cmd.c_str());
+    cmdSerial.printf(COMMAND_DELIMETER);
+    cmdSerial.flush();
+  }
+  else {
+#ifdef USE_SERIAL_DEBUG
     Serial.println("Unhandled command : " + cmd);
 #endif
   }

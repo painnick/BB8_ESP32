@@ -21,16 +21,29 @@
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
 
-void setup() {
+#define SOUND_WELCOME 1
+#define SOUND_HELLO 2
+#define SOUND_FAIL 3
+#define SOUND_WHY 4
+#define SOUND_SLEEP 5
+#define SOUND_THEME 6
+
+void setup() {  
 
   ESP_LOGI(MAIN_TAG, "Setup...");
 
   setupSound();
 
+  dfmp3.playMp3FolderTrack(SOUND_WELCOME);
+
   vr.init([](int cmd) -> void {
     switch (cmd) {
     case 0: // HELLO
-      dfmp3.playRandomTrackFromAll();
+      dfmp3.playMp3FolderTrack(SOUND_HELLO);
+      break;
+    case 1: // BYE
+      dfmp3.playMp3FolderTrack(SOUND_SLEEP);
+      motor1.stop();
       break;
     case 2: // RIGHT
       motor1.right(1000 * 3);
@@ -39,6 +52,7 @@ void setup() {
       motor1.left(1000 * 3);
       break;
     case 4: // STOP
+      dfmp3.stop();
       motor1.stop();
       break;
     default:
