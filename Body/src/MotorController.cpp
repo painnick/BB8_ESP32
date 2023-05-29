@@ -1,18 +1,13 @@
 #include "MotorController.h"
 
-#define MOTOR_POWER 230
-
 MotorController::MotorController()
     : targetMoveMs(0), dir(MOTOR_DIRECTION::STOP) {}
 
 MotorController::~MotorController() {}
 
 void MotorController::init() {
-  ledcSetup(CHANNEL_MOTOR1, 1000, 8); // 0~255
-  ledcSetup(CHANNEL_MOTOR2, 1000, 8); // 0~255
-
-  ledcAttachPin(PIN_MOTOR1, CHANNEL_MOTOR1);
-  ledcAttachPin(PIN_MOTOR2, CHANNEL_MOTOR2);
+  pinMode(PIN_MOTOR1, OUTPUT);
+  pinMode(PIN_MOTOR2, OUTPUT);
 }
 
 void MotorController::left(unsigned long ms) {
@@ -38,22 +33,22 @@ void MotorController::loop() {
 
 void MotorController::internalLeft() {
   dir = MOTOR_DIRECTION::LEFT;
-  ledcWrite(CHANNEL_MOTOR1, 0);
-  ledcWrite(CHANNEL_MOTOR2, MOTOR_POWER);
+  digitalWrite(PIN_MOTOR1, LOW);
+  digitalWrite(PIN_MOTOR2, HIGH);
   ESP_LOGD(MOTOR_TAG, "Left");
 }
 
 void MotorController::internalRight() {
   dir = MOTOR_DIRECTION::RIGHT;
-  ledcWrite(CHANNEL_MOTOR1, MOTOR_POWER);
-  ledcWrite(CHANNEL_MOTOR2, 0);
+  digitalWrite(PIN_MOTOR1, HIGH);
+  digitalWrite(PIN_MOTOR2, LOW);
   ESP_LOGD(MOTOR_TAG, "Right");
 }
 
 void MotorController::stop() {
   dir = MOTOR_DIRECTION::STOP;
-  ledcWrite(CHANNEL_MOTOR1, 0);
-  ledcWrite(CHANNEL_MOTOR2, 0);
+  digitalWrite(PIN_MOTOR1, LOW);
+  digitalWrite(PIN_MOTOR2, LOW);
   ESP_LOGD(MOTOR_TAG, "Stop");
 }
 

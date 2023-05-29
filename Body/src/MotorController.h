@@ -9,9 +9,6 @@
 #define PIN_MOTOR1 18
 #define PIN_MOTOR2 19
 
-#define CHANNEL_MOTOR1 14
-#define CHANNEL_MOTOR2 15
-
 enum class MOTOR_DIRECTION {
   STOP = 0,
   LEFT = 1,
