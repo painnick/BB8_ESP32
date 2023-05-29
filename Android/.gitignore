@@ -1,0 +1,5 @@
+.gradle
+.idea
+build/
+/bb8/debug/
+/bb8/release/
