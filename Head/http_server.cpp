@@ -103,7 +103,7 @@ static esp_err_t capture_handler(httpd_req_t *req){
 static esp_err_t head_handler(httpd_req_t *req){
   char*  buf;
   size_t buf_len;
-  char direction[32] = {0,}, step[5] = {0,}, found[6] = {0,};
+  char direction[32] = {0,}, found[6] = {0,};
   char body[18] = {0,};
   
   buf_len = httpd_req_get_url_query_len(req) + 1;
@@ -118,12 +118,6 @@ static esp_err_t head_handler(httpd_req_t *req){
     }
     if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
       if (httpd_query_key_value(buf, "dir", direction, sizeof(direction)) == ESP_OK) {
-      } else {
-        free(buf);
-        httpd_resp_send_404(req);
-        return ESP_FAIL;
-      }
-      if (httpd_query_key_value(buf, "step", step, sizeof(step)) == ESP_OK) {
       } else {
         free(buf);
         httpd_resp_send_404(req);
@@ -151,8 +145,6 @@ static esp_err_t head_handler(httpd_req_t *req){
 //    mono_eye_leds.orange(2);
     time(&last_catch);
   }
-
-  int angle = atoi(step);
 
   sensor_t * s = esp_camera_sensor_get();
   //flip the camera vertically
