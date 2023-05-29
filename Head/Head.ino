@@ -11,17 +11,18 @@
 #define PIN_LED2 13
 #define PIN_RX 15
 #define PIN_TX 14
-#define PIN_USED3 4
+#define PIN_ONBOARDLED 2
+#define PIN_FLASHLIGHT 4
 // Right
-#define PIN_USED4 16
+#define PIN_LED3 16
 
-void process(String& cmd);
+void process(String &cmd);
 
 void setup() {
 #ifdef USE_SERIAL_DEBUG
   Serial.begin(115200);
   Serial.setDebugOutput(true);
-  
+
   delay(2000);
 
   Serial.println("Setup...");
@@ -41,6 +42,11 @@ void setup() {
 
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_LED2, OUTPUT);
+  pinMode(PIN_LED3, OUTPUT);
+
+  digitalWrite(PIN_LED1, HIGH);
+  digitalWrite(PIN_LED2, HIGH);
+  digitalWrite(PIN_LED3, HIGH);
 }
 
 unsigned long lastTime = 0;
@@ -53,7 +59,7 @@ void loop() {
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
 #ifdef USE_SERIAL_DEBUG
-      Serial.println("=> Keep.");
+    Serial.println("=> Keep.");
 #endif
   }
 
@@ -78,36 +84,44 @@ void loop() {
   delay(10);
 }
 
-void process(String& cmd) {
+void process(String &cmd) {
   if (cmd == "LED1ON") {
     digitalWrite(PIN_LED1, HIGH);
 
     cmdSerial.printf("ACK %s", cmd.c_str());
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-  }
-  else if (cmd == "LED1OFF") {
+  } else if (cmd == "LED1OFF") {
     digitalWrite(PIN_LED1, LOW);
 
     cmdSerial.printf("ACK %s", cmd.c_str());
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-  }
-  else if (cmd == "LED2ON") {
+  } else if (cmd == "LED2ON") {
     digitalWrite(PIN_LED2, HIGH);
 
     cmdSerial.printf("ACK %s", cmd.c_str());
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-  }
-  else if (cmd == "LED2OFF") {
+  } else if (cmd == "LED2OFF") {
     digitalWrite(PIN_LED2, LOW);
 
     cmdSerial.printf("ACK %s", cmd.c_str());
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-  }
-  else {
+  } else if (cmd == "LED3ON") {
+    digitalWrite(PIN_LED3, HIGH);
+
+    cmdSerial.printf("ACK %s", cmd.c_str());
+    cmdSerial.printf(COMMAND_DELIMETER);
+    cmdSerial.flush();
+  } else if (cmd == "LED3OFF") {
+    digitalWrite(PIN_LED3, LOW);
+
+    cmdSerial.printf("ACK %s", cmd.c_str());
+    cmdSerial.printf(COMMAND_DELIMETER);
+    cmdSerial.flush();
+  } else {
 #ifdef USE_SERIAL_DEBUG
     Serial.println("Unhandled command : " + cmd);
 #endif
