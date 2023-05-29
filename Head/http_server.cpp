@@ -28,7 +28,9 @@ static esp_err_t capture_handler(httpd_req_t *req){
 
     fb = esp_camera_fb_get();
     if (!fb) {
+#ifdef USE_SERIAL_DEBUG      
         Serial.println("Camera capture failed");
+#endif
         httpd_resp_send_500(req);
         return ESP_FAIL;
     }
@@ -62,7 +64,9 @@ static esp_err_t capture_handler(httpd_req_t *req){
     dl_matrix3du_t *image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
     if (!image_matrix) {
         esp_camera_fb_return(fb);
+#ifdef USE_SERIAL_DEBUG        
         Serial.println("dl_matrix3du_alloc failed");
+#endif
         httpd_resp_send_500(req);
         return ESP_FAIL;
     }
@@ -76,7 +80,9 @@ static esp_err_t capture_handler(httpd_req_t *req){
     esp_camera_fb_return(fb);
     if(!s){
         dl_matrix3du_free(image_matrix);
+#ifdef USE_SERIAL_DEBUG
         Serial.println("to rgb888 failed");
+#endif
         httpd_resp_send_500(req);
         return ESP_FAIL;
     }
@@ -85,7 +91,9 @@ static esp_err_t capture_handler(httpd_req_t *req){
     s = fmt2jpg_cb(out_buf, out_len, out_width, out_height, PIXFORMAT_RGB888, 90, jpg_encode_stream, &jchunk);
     dl_matrix3du_free(image_matrix);
     if(!s){
+#ifdef USE_SERIAL_DEBUG
         Serial.println("JPEG compression failed");
+#endif
         return ESP_FAIL;
     }
 
@@ -102,7 +110,9 @@ static esp_err_t head_handler(httpd_req_t *req){
   if (buf_len > 1) {
     buf = (char*)malloc(buf_len);
     if(!buf){
+#ifdef USE_SERIAL_DEBUG
       Serial.println("head_handler : malloc failed");
+#endif
       httpd_resp_send_500(req);
       return ESP_FAIL;
     }
@@ -154,21 +164,27 @@ static esp_err_t head_handler(httpd_req_t *req){
     cmdSerial.printf("Left");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
+#ifdef USE_SERIAL_DEBUG
     // uint32_t pos = zakuServo.left(angle);
     Serial.println("Left");
     // Serial.println(pos);
+#endif
   }
   else if(!strcmp(direction, "right")) {
     cmdSerial.printf("Right");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
+#ifdef USE_SERIAL_DEBUG
     // uint32_t pos = zakuServo.right(angle);
     Serial.println("Right");
     // Serial.println(pos);
+#endif
   }
   else {
+#ifdef USE_SERIAL_DEBUG
     Serial.print("Wrong direction : ");
     Serial.println(direction);
+#endif
   }
 
   // sprintf(body, "{\"angle\":%d}", zakuServo.angle());
@@ -213,7 +229,9 @@ void initCamera() {
   // Camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
+#ifdef USE_SERIAL_DEBUG
     Serial.printf("Camera init failed with error 0x%x", err);
+#endif
     return;
   }
 }
