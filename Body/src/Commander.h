@@ -20,12 +20,14 @@ public:
   ~Commander();
   void init(CommandCallnack callback);
   void loop();
-  void send(char *msg);
+  void send(const char *msg);
 
 private:
   HardwareSerial &cmdSerial;
   String cmdBuffer = "";
   CommandCallnack proc;
+
+  unsigned long lastKeepAliveTime = 0;
 };
 
 extern Commander commander1;

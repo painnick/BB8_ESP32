@@ -2,6 +2,8 @@
 
 #include "http_server.h"
 
+#define USE_SERIAL_DEBUG
+
 // These are all GPIO pins on the ESP32
 // Recommended pins include 2,4,12-19,21-23,25-27,32-33
 // for the ESP32-S2 the GPIO pins are 1-21,26,33-42
@@ -16,7 +18,7 @@
 // Right
 #define PIN_LED3 16
 
-void process(String &cmd);
+void process(const String &cmd);
 
 void setup() {
 #ifdef USE_SERIAL_DEBUG
@@ -35,7 +37,7 @@ void setup() {
   Serial.println("Setup Camera.");
 #endif
 
-  cmdSerial.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
+  cmdSerial.begin(9600, SERIAL_8N1, PIN_RX, PIN_TX);
 #ifdef USE_SERIAL_DEBUG
   Serial.println("Setup Serial.");
 #endif
@@ -43,85 +45,93 @@ void setup() {
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_LED2, OUTPUT);
   pinMode(PIN_LED3, OUTPUT);
-
-  digitalWrite(PIN_LED1, HIGH);
-  digitalWrite(PIN_LED2, HIGH);
-  digitalWrite(PIN_LED3, HIGH);
 }
 
 unsigned long lastTime = 0;
+unsigned long bufferSetUntil = 0;
 String cmdBuffer = "";
 void loop() {
   unsigned long now = millis();
-  if (now - lastTime > 1000 * 30) {
-    lastTime = now;
-    cmdSerial.printf("Keep.");
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
-#ifdef USE_SERIAL_DEBUG
-    Serial.println("=> Keep.");
-#endif
-  }
+  //   if (now - lastTime > 1000 * 10) {
+  //     lastTime = now;
+  //     cmdSerial.printf("Keep from HEAD");
+  //     cmdSerial.printf(COMMAND_DELIMETER);
+  //     cmdSerial.flush();
+  // #ifdef USE_SERIAL_DEBUG
+  //     Serial.println("=> Keep from HEAD");
+  // #endif
+  //   }
 
-  // Append command-buffer
-  while (cmdSerial.available()) {
-    cmdBuffer += (char)cmdSerial.read();
-  }
-  // Check size of command-buffer
-  if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SZIE) {
-    cmdBuffer = "";
-  } else {
-    int found = cmdBuffer.indexOf(COMMAND_DELIMETER);
-    if (found != -1) {
-      String cmd = cmdBuffer.substring(0, found);
-      cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
+  if (cmdSerial.available()) {
+    if (now > bufferSetUntil) {
+      cmdBuffer = "";
 #ifdef USE_SERIAL_DEBUG
-      Serial.println("<= " + cmd);
+      Serial.println("Buffer Timeout");
 #endif
-      process(cmd);
     }
+
+    // Append command-buffer
+    while (cmdSerial.available()) {
+      cmdBuffer += (char)cmdSerial.read();
+#ifdef USE_SERIAL_DEBUG
+      Serial.println("Buffer ::" + cmdBuffer + "::");
+#endif
+    }
+    // Check size of command-buffer
+    if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SZIE) {
+      cmdBuffer = "";
+#ifdef USE_SERIAL_DEBUG
+      Serial.println("Clear Buffer!");
+#endif
+    } else {
+      while (-1 != cmdBuffer.indexOf(COMMAND_DELIMETER)) {
+        int found = cmdBuffer.indexOf(COMMAND_DELIMETER);
+        if (found != -1) {
+          String cmd = cmdBuffer.substring(0, found);
+          cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
+#ifdef USE_SERIAL_DEBUG
+          Serial.println("<= " + cmd + "===");
+#endif
+          process(cmd);
+        }
+      }
+    }
+
+    bufferSetUntil = now + 1000;
   }
-  delay(10);
 }
 
-void process(String &cmd) {
+void ackCommand(const String &cmd) {
+  cmdSerial.printf("ACK.");
+  cmdSerial.printf(COMMAND_DELIMETER);
+  cmdSerial.flush();
+
+#ifdef USE_SERIAL_DEBUG
+  Serial.println("=> ACK " + cmd);
+#endif
+}
+
+void process(const String &cmd) {
   if (cmd == "LED1ON") {
     digitalWrite(PIN_LED1, HIGH);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else if (cmd == "LED1OFF") {
     digitalWrite(PIN_LED1, LOW);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else if (cmd == "LED2ON") {
     digitalWrite(PIN_LED2, HIGH);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else if (cmd == "LED2OFF") {
     digitalWrite(PIN_LED2, LOW);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else if (cmd == "LED3ON") {
     digitalWrite(PIN_LED3, HIGH);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else if (cmd == "LED3OFF") {
     digitalWrite(PIN_LED3, LOW);
-
-    cmdSerial.printf("ACK %s", cmd.c_str());
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
+    ackCommand(cmd);
   } else {
+    ackCommand("Unknown");
 #ifdef USE_SERIAL_DEBUG
     Serial.println("Unhandled command : " + cmd);
 #endif

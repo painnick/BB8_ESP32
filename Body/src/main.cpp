@@ -36,14 +36,22 @@ void setup() {
 
   dfmp3.playMp3FolderTrack(SOUND_WELCOME);
 
+  commander1.send("NOP");
+
   vr.init([](int cmd) -> void {
     switch (cmd) {
     case 0: // HELLO
       dfmp3.playMp3FolderTrack(SOUND_HELLO);
+      commander1.send("LED1ON");
+      commander1.send("LED2ON");
+      commander1.send("LED3ON");
       break;
     case 1: // BYE
       dfmp3.playMp3FolderTrack(SOUND_SLEEP);
       motor1.stop();
+      commander1.send("LED1OFF");
+      commander1.send("LED2OFF");
+      commander1.send("LED3OFF");
       break;
     case 2: // RIGHT
       motor1.right(500);

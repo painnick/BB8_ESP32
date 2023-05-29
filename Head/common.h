@@ -8,7 +8,7 @@
 #define MAIN_TAG "Main"
 #define cmdSerial Serial1
 
-#define COMMAND_DELIMETER "\r\n"
+#define COMMAND_DELIMETER "/|"
 #define COMMAND_DELIMETER_SIZE 2
 #define MAX_COMMAND_BUFFER_SZIE 50
 
