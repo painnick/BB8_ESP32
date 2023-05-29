@@ -13,10 +13,10 @@
 #define PIN_LED2 13
 #define PIN_RX 15
 #define PIN_TX 14
-#define PIN_ONBOARDLED 2
+#define PIN_LED3 2
 #define PIN_FLASHLIGHT 4
 // Right
-#define PIN_LED3 16
+#define PIN_10KPULLUP 16
 
 void process(const String &cmd);
 
