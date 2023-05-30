@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Process;
+import android.util.Log;
 
 import com.google.mediapipe.framework.MediaPipeException;
 
@@ -121,6 +122,7 @@ public class BB8Api {
         executor.execute(() -> {
             try {
                 call("/motor?dir=left&found=" + (found ? "true" : "false"));
+                Log.d(TAG, "moveLeft");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -131,6 +133,7 @@ public class BB8Api {
         executor.execute(() -> {
             try {
                 call("/motor?dir=right&found=" + (found ? "true" : "false"));
+                Log.d(TAG, "moveRight");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -141,6 +144,7 @@ public class BB8Api {
         executor.execute(() -> {
             try {
                 call("/motor?dir=none&found=" + (found ? "true" : "false"));
+                Log.d(TAG, "stopNow");
             } catch (IOException e) {
                 e.printStackTrace();
             }
