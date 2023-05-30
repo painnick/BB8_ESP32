@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Date now = new Date();
-                    long lostSeconds = (now.getTime() - lastDetection.getTime()) / 1000;
+                    long lostMs = (now.getTime() - lastDetection.getTime());
 
                     if (foundDetection != null) { // Found!!!
                         boolean isStartSeq = (startFoundSeq == null);
@@ -144,14 +144,14 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         // 찾은 지 30초가 지나지 않았다면 굳이 Stop 명령을 보내지 않는다.
-                        if (lostSeconds > 30) {
+                        if (lostMs > 30 * 1000) {
                             bb8Controller.stopNow(true);
                         }
 
                         lastDetection = new Date();
                     } else {
                         // LOST!!!
-                        if ((startNotFoundSeq == null) && (lostSeconds > 2)) {
+                        if ((startNotFoundSeq == null) && (lostMs > 1000 * 2)) {
                             startFoundSeq = null;
                             startNotFoundSeq = new Date();
                         }

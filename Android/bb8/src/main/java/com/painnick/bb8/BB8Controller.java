@@ -2,6 +2,14 @@ package com.painnick.bb8;
 
 import android.os.Process;
 
+import java.util.Date;
+
+enum MOTOR_DIRECTION {
+    NONE,
+    LEFT,
+    RIGHT
+}
+
 public class BB8Controller {
 
     private static final String TAG = "BB8Controller";
@@ -16,6 +24,9 @@ public class BB8Controller {
 
     private Boolean stopping = true;
 
+    private MOTOR_DIRECTION direction = MOTOR_DIRECTION.NONE;
+    private Date lastReqTime;
+
     public BB8Controller(WebImageConsumer webImageListener, BB8ApiConsumer apiListener) {
         executor = new SingleThreadHandlerExecutor("BB8Controller", Process.THREAD_PRIORITY_DEFAULT);
         bb8Api = new BB8Api(BB8Host);
@@ -24,6 +35,8 @@ public class BB8Controller {
             executor.execute(this::run);
         });
         bb8Api.setApiListener(apiListener);
+
+        lastReqTime = new Date();
     }
 
     public void start() {
@@ -50,14 +63,50 @@ public class BB8Controller {
     }
 
     public void moveLeft(boolean found) {
-        bb8Api.moveLeft(found);
+        if (direction != MOTOR_DIRECTION.LEFT) {
+            lastReqTime = new Date();
+            bb8Api.moveLeft(found);
+        } else {
+            Date now = new Date();
+            long lostMs = (now.getTime() - lastReqTime.getTime());
+            if (lostMs > 1000) {
+                lastReqTime = now;
+                bb8Api.moveLeft(found);
+            }
+        }
+
+        direction = MOTOR_DIRECTION.LEFT;
     }
 
     public void moveRight(boolean found) {
-        bb8Api.moveRight(found);
+        if (direction != MOTOR_DIRECTION.RIGHT) {
+            lastReqTime = new Date();
+            bb8Api.moveRight(found);
+        } else {
+            Date now = new Date();
+            long lostMs = (now.getTime() - lastReqTime.getTime());
+            if (lostMs > 1000) {
+                lastReqTime = now;
+                bb8Api.moveRight(found);
+            }
+        }
+
+        direction = MOTOR_DIRECTION.RIGHT;
     }
 
     public void stopNow(boolean found) {
-        bb8Api.stopNow(found);
+        if (direction != MOTOR_DIRECTION.NONE) {
+            lastReqTime = new Date();
+            bb8Api.stopNow(found);
+        } else {
+            Date now = new Date();
+            long lostMs = (now.getTime() - lastReqTime.getTime());
+            if (lostMs > 1000) {
+                lastReqTime = now;
+                bb8Api.stopNow(found);
+            }
+        }
+
+        direction = MOTOR_DIRECTION.NONE;
     }
 }
