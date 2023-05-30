@@ -1,5 +1,8 @@
 #include "common.h"
 
+#include "soc/soc.h"             // disable brownout problems
+#include "soc/rtc_cntl_reg.h"    // disable brownout problems
+
 #include "http_server.h"
 
 #define USE_SERIAL_DEBUG
@@ -21,6 +24,8 @@
 void process(const String &cmd);
 
 void setup() {
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
+
 #ifdef USE_SERIAL_DEBUG
   Serial.begin(115200);
   Serial.setDebugOutput(true);
