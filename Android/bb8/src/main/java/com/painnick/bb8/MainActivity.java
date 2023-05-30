@@ -23,13 +23,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-//import com.google.mediapipe.examples.facedetection.R;
 import com.google.mediapipe.formats.proto.DetectionProto;
 import com.google.mediapipe.formats.proto.LocationDataProto;
 import com.google.mediapipe.solutions.facedetection.FaceDetection;
 import com.google.mediapipe.solutions.facedetection.FaceDetectionOptions;
 
 import java.util.Date;
+import java.util.Random;
 
 enum FACE_DIRECTION {
     NONE,
@@ -52,9 +52,14 @@ public class MainActivity extends AppCompatActivity {
     private Date lastDetection, startFoundSeq, startNotFoundSeq;
     private FACE_DIRECTION faceDirection = FACE_DIRECTION.NONE;
 
+    private boolean findingFace = false;
+
+    private Random random;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        random = new Random();
         lastDetection = new Date();
         startFoundSeq = null;
         startNotFoundSeq = null;
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setupStaticImageDemoUiComponents();
         Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
         bb8Controller.start();
     }
 
@@ -101,6 +107,25 @@ public class MainActivity extends AppCompatActivity {
                     faceDirection = FACE_DIRECTION.LEFT;
                     bb8Controller.moveLeft(false);
                 });
+        findViewById(R.id.find_face).setOnClickListener(
+                v -> {
+                    if (findingFace) {
+                        faceDirection = FACE_DIRECTION.NONE;
+                        bb8Controller.stopNow(false);
+                    } else {
+                        boolean b = random.nextBoolean();
+                        if (b) {
+                            faceDirection = FACE_DIRECTION.LEFT;
+                            Log.d(TAG, "Find face - Left");
+                        } else {
+                            faceDirection = FACE_DIRECTION.RIGHT;
+                            Log.d(TAG, "Find face - Right");
+                        }
+                    }
+
+                    findingFace = !findingFace;
+                    findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
+                });
     }
 
     /**
@@ -133,34 +158,34 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    Date now = new Date();
-                    long lostMs = (now.getTime() - lastDetection.getTime());
+                    if (findingFace) {
+                        Date now = new Date();
+                        long lostMs = (now.getTime() - lastDetection.getTime());
 
-                    if (foundDetection != null) { // Found!!!
-                        boolean isStartSeq = (startFoundSeq == null);
-                        if (isStartSeq) {
-                            startFoundSeq = new Date();
-                            startNotFoundSeq = null;
-                        }
+                        if (foundDetection != null) { // Found!!!
+                            boolean isStartSeq = (startFoundSeq == null);
+                            if (isStartSeq) {
+                                startFoundSeq = new Date();
+                                startNotFoundSeq = null;
+                            }
 
-                        // 찾은 지 30초가 지나지 않았다면 굳이 Stop 명령을 보내지 않는다.
-                        if (lostMs > 30 * 1000) {
                             bb8Controller.stopNow(true);
-                        }
 
-                        lastDetection = new Date();
-                    } else {
-                        // LOST!!!
-                        if ((startNotFoundSeq == null) && (lostMs > 1000 * 2)) {
-                            startFoundSeq = null;
-                            startNotFoundSeq = new Date();
-                        }
-
-                        // 기존 방향으로 카메라 이동
-                        if (faceDirection == FACE_DIRECTION.RIGHT) {
-                            bb8Controller.moveRight(false);
+                            lastDetection = new Date();
+                            findingFace = false;
                         } else {
-                            bb8Controller.moveLeft(false);
+                            // LOST!!!
+                            if ((startNotFoundSeq == null) && (lostMs > 1000 * 2)) {
+                                startFoundSeq = null;
+                                startNotFoundSeq = new Date();
+                            }
+
+                            // 기존 방향으로 카메라 이동
+                            if (faceDirection == FACE_DIRECTION.RIGHT) {
+                                bb8Controller.moveRight(false);
+                            } else {
+                                bb8Controller.moveLeft(false);
+                            }
                         }
                     }
                 });
