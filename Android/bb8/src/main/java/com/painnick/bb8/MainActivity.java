@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     maxWidth = box.getWidth();
 
                     float center = box.getXmin() + (box.getWidth() / 2);
-                    foundFace = (0.4f < center && center < 0.6f);
+                    foundFace = (0.2f < center && center < 0.8f);
                 }
             }
 
