@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
                             lastDetection = new Date();
                             findingFace = false;
+                            findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!", Toast.LENGTH_SHORT).show());
                         } else {
                             // LOST!!!
                             if ((startNotFoundSeq == null) && (lostMs > 1000 * 2)) {
