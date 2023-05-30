@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         // Connects MediaPipe Face Detection solution to the user-defined FaceDetectionResultImageView.
         faceDetection.setResultListener(
                 faceDetectionResult -> {
-                    imageView.setFaceDetectionResult(faceDetectionResult);
+                    imageView.setFaceDetectionResult(faceDetectionResult, findingFace);
                     runOnUiThread(() -> imageView.update());
 
                     float maxWidth = 0;

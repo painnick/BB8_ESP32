@@ -52,7 +52,7 @@ public class FaceDetectionResultImageView extends AppCompatImageView {
      * @param result a {@link FaceDetectionResult} object that contains the solution outputs and the
      *               input {@link Bitmap}.
      */
-    public void setFaceDetectionResult(FaceDetectionResult result) {
+    public void setFaceDetectionResult(FaceDetectionResult result, boolean drawBox) {
         if (result == null) {
             return;
         }
@@ -63,9 +63,11 @@ public class FaceDetectionResultImageView extends AppCompatImageView {
         Canvas canvas = new Canvas(latest);
 
         canvas.drawBitmap(bmInput, new Matrix(), null);
-        int numDetectedFaces = result.multiFaceDetections().size();
-        for (int i = 0; i < numDetectedFaces; ++i) {
-            drawDetectionOnCanvas(result.multiFaceDetections().get(i), canvas, width, height);
+        if(drawBox) {
+            int numDetectedFaces = result.multiFaceDetections().size();
+            for (int i = 0; i < numDetectedFaces; ++i) {
+                drawDetectionOnCanvas(result.multiFaceDetections().get(i), canvas, width, height);
+            }
         }
 
         // 좌우 전환
