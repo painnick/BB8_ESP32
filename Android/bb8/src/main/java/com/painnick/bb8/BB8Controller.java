@@ -62,32 +62,42 @@ public class BB8Controller {
         }
     }
 
-    public void moveLeft(boolean found) {
+    public void moveLeft(boolean found, boolean forced) {
         if (direction != MOTOR_DIRECTION.LEFT) {
             lastReqTime = new Date();
             bb8Api.moveLeft(found);
         } else {
             Date now = new Date();
-            long lostMs = (now.getTime() - lastReqTime.getTime());
-            if (lostMs > 1000) {
+            if (forced) {
                 lastReqTime = now;
                 bb8Api.moveLeft(found);
+            } else {
+                long lostMs = (now.getTime() - lastReqTime.getTime());
+                if (lostMs > 1000) {
+                    lastReqTime = now;
+                    bb8Api.moveLeft(found);
+                }
             }
         }
 
         direction = MOTOR_DIRECTION.LEFT;
     }
 
-    public void moveRight(boolean found) {
+    public void moveRight(boolean found, boolean forced) {
         if (direction != MOTOR_DIRECTION.RIGHT) {
             lastReqTime = new Date();
             bb8Api.moveRight(found);
         } else {
             Date now = new Date();
-            long lostMs = (now.getTime() - lastReqTime.getTime());
-            if (lostMs > 1000) {
+            if (forced) {
                 lastReqTime = now;
                 bb8Api.moveRight(found);
+            } else {
+                long lostMs = (now.getTime() - lastReqTime.getTime());
+                if (lostMs > 1000) {
+                    lastReqTime = now;
+                    bb8Api.moveRight(found);
+                }
             }
         }
 

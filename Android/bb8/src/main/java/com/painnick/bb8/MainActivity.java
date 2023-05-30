@@ -31,10 +31,8 @@ import com.google.mediapipe.solutions.facedetection.FaceDetectionOptions;
 import java.util.Date;
 import java.util.Random;
 
-enum FACE_DIRECTION {
-    NONE,
-    LEFT,
-    RIGHT
+enum FACE_FINDING_DIRECTION {
+    NONE, LEFT_SIDE, RIGHT_SIDE
 }
 
 /**
@@ -49,25 +47,24 @@ public class MainActivity extends AppCompatActivity {
     // Image demo UI and image loader components.
     private FaceDetectionResultImageView imageView;
 
-    private Date lastDetection, startFoundSeq, startNotFoundSeq;
-    private FACE_DIRECTION faceDirection = FACE_DIRECTION.NONE;
+    private Date lastFaceFound, lastFaceLost;
+    private FACE_FINDING_DIRECTION faceSearchingDirection = FACE_FINDING_DIRECTION.NONE;
 
-    private boolean findingFace = false;
+    private boolean isFindingFace = false;
 
-    private Random random;
+    private Random randomizer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        random = new Random();
-        lastDetection = new Date();
-        startFoundSeq = null;
-        startNotFoundSeq = null;
+        randomizer = new Random();
+        lastFaceFound = new Date();
+        lastFaceLost = new Date();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         setupStaticImageDemoUiComponents();
-        Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_SHORT).show();
-        findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
+        Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_LONG).show();
+        stopFindFace();
         bb8Controller.start();
     }
 
@@ -96,36 +93,22 @@ public class MainActivity extends AppCompatActivity {
         bb8Controller = new BB8Controller(bitmap -> faceDetection.send(bitmap), response -> {
         });
 
-        // 버튼과 화면과 위치가 반대임에 유의!
-        findViewById(R.id.move_left).setOnClickListener(
-                v -> {
-                    faceDirection = FACE_DIRECTION.RIGHT;
-                    bb8Controller.moveRight(false);
-                });
-        findViewById(R.id.move_right).setOnClickListener(
-                v -> {
-                    faceDirection = FACE_DIRECTION.LEFT;
-                    bb8Controller.moveLeft(false);
-                });
-        findViewById(R.id.find_face).setOnClickListener(
-                v -> {
-                    if (findingFace) {
-                        faceDirection = FACE_DIRECTION.NONE;
-                        bb8Controller.stopNow(false);
-                    } else {
-                        boolean b = random.nextBoolean();
-                        if (b) {
-                            faceDirection = FACE_DIRECTION.LEFT;
-                            Log.d(TAG, "Find face - Left");
-                        } else {
-                            faceDirection = FACE_DIRECTION.RIGHT;
-                            Log.d(TAG, "Find face - Right");
-                        }
-                    }
-
-                    findingFace = !findingFace;
-                    findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
-                });
+        // 버튼과 화면과 위치가 반대!
+        findViewById(R.id.move_left).setOnClickListener(v -> {
+            moveRightSide();
+        });
+        // 버튼과 화면과 위치가 반대!
+        findViewById(R.id.move_right).setOnClickListener(v -> {
+            moveLeftSide();
+        });
+        // Toggle
+        findViewById(R.id.find_face).setOnClickListener(v -> {
+            if (isFindingFace) {
+                stopFindFace();
+            } else {
+                startFindFace();
+            }
+        });
     }
 
     /**
@@ -133,66 +116,56 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupStaticImageModePipeline() {
         // Initializes a new MediaPipe Face Detection solution instance in the static image mode.
-        faceDetection =
-                new FaceDetection(
-                        this,
-                        FaceDetectionOptions.builder()
-                                .setStaticImageMode(true)
-                                .setModelSelection(0)
-                                .setMinDetectionConfidence(0.7f)
-                                .build());
+        faceDetection = new FaceDetection(this, FaceDetectionOptions.builder().setStaticImageMode(true).setModelSelection(0).setMinDetectionConfidence(0.7f).build());
 
         // Connects MediaPipe Face Detection solution to the user-defined FaceDetectionResultImageView.
-        faceDetection.setResultListener(
-                faceDetectionResult -> {
-                    imageView.setFaceDetectionResult(faceDetectionResult, findingFace);
-                    runOnUiThread(() -> imageView.update());
+        faceDetection.setResultListener(faceDetectionResult -> {
+            // Draw Image
+            imageView.setFaceDetectionResult(faceDetectionResult, isFindingFace);
+            runOnUiThread(() -> imageView.update());
 
-                    float maxWidth = 0;
-                    DetectionProto.Detection foundDetection = null;
-                    for (DetectionProto.Detection detection : faceDetectionResult.multiFaceDetections()) {
-                        LocationDataProto.LocationData.RelativeBoundingBox box = detection.getLocationData().getRelativeBoundingBox();
-                        if (maxWidth < box.getWidth()) {
-                            foundDetection = detection;
-                            maxWidth = box.getWidth();
-                        }
-                    }
+            boolean foundFace = false;
 
-                    if (findingFace) {
-                        Date now = new Date();
-                        long lostMs = (now.getTime() - lastDetection.getTime());
+            // 인식된 영역이 있는지 검색
+            float maxWidth = 0;
+            DetectionProto.Detection foundDetection = null;
+            for (DetectionProto.Detection detection : faceDetectionResult.multiFaceDetections()) {
+                LocationDataProto.LocationData.RelativeBoundingBox box = detection.getLocationData().getRelativeBoundingBox();
+                if (maxWidth < box.getWidth()) {
+                    foundDetection = detection;
+                    maxWidth = box.getWidth();
 
-                        if (foundDetection != null) { // Found!!!
-                            boolean isStartSeq = (startFoundSeq == null);
-                            if (isStartSeq) {
-                                startFoundSeq = new Date();
-                                startNotFoundSeq = null;
-                            }
+                    float center = box.getXmin() + (box.getWidth() / 2);
+                    foundFace = (0.4f < center && center < 0.6f);
+                }
+            }
 
-                            bb8Controller.stopNow(true);
-
-                            lastDetection = new Date();
-                            findingFace = false;
-                            findViewById(R.id.find_face).setAlpha(findingFace ? 0.3f : 1.0f);
-                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!", Toast.LENGTH_SHORT).show());
+            // 얼굴 검색 모드일 때만 동작
+            if (isFindingFace) {
+                if (foundFace) {
+                    // Found!!!
+                    lastFaceFound = new Date();
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!!!", Toast.LENGTH_LONG).show());
+                    stopFindFace();
+                } else {
+                    // LOST!!!
+                    Date now = new Date();
+                    long lastMs = now.getTime() - lastFaceFound.getTime();
+                    if (lastMs < 1000 * 5) {
+                        // 기존 방향으로 카메라 이동
+                        if (faceSearchingDirection == FACE_FINDING_DIRECTION.RIGHT_SIDE) {
+                            findRightSide();
                         } else {
-                            // LOST!!!
-                            if ((startNotFoundSeq == null) && (lostMs > 1000 * 2)) {
-                                startFoundSeq = null;
-                                startNotFoundSeq = new Date();
-                            }
-
-                            // 기존 방향으로 카메라 이동
-                            if (faceDirection == FACE_DIRECTION.RIGHT) {
-                                bb8Controller.moveRight(false);
-                            } else {
-                                bb8Controller.moveLeft(false);
-                            }
+                            findLeftSide();
                         }
+                    } else {
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "어디에 계신가요.ㅜㅜ", Toast.LENGTH_LONG).show());
+                        stopFindFace();
                     }
-                });
-        faceDetection.setErrorListener(
-                (message, e) -> Log.e(TAG, "MediaPipe Face Detection error:" + message));
+                }
+            }
+        });
+        faceDetection.setErrorListener((message, e) -> Log.e(TAG, "MediaPipe Face Detection error:" + message));
 
         // Updates the preview layout.
         FrameLayout frameLayout = findViewById(R.id.preview_display_layout);
@@ -208,6 +181,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void startFindFace() {
+        isFindingFace = true;
+        lastFaceFound = new Date(); // 마지막 검색 시점 초기화
+        if (faceSearchingDirection == FACE_FINDING_DIRECTION.NONE) {
+            boolean b = randomizer.nextBoolean();
+            if (b) {
+                faceSearchingDirection = FACE_FINDING_DIRECTION.LEFT_SIDE;
+            } else {
+                faceSearchingDirection = FACE_FINDING_DIRECTION.RIGHT_SIDE;
+            }
+        }
+        if (faceSearchingDirection == FACE_FINDING_DIRECTION.LEFT_SIDE) {
+            findLeftSide();
+        } else {
+            findRightSide();
+        }
+        findViewById(R.id.find_face).setAlpha(0.3f);
+    }
+
+    private void stopFindFace() {
+        isFindingFace = false;
+        findViewById(R.id.find_face).setAlpha(1.0f);
+        bb8Controller.stopNow(true);
+    }
+
+    private void findLeftSide() {
+        faceSearchingDirection = FACE_FINDING_DIRECTION.LEFT_SIDE;
+        bb8Controller.moveLeft(false, false);
+    }
+
+    private void findRightSide() {
+        faceSearchingDirection = FACE_FINDING_DIRECTION.RIGHT_SIDE;
+        bb8Controller.moveRight(false, false);
+    }
+
+    private void moveLeftSide() {
+        faceSearchingDirection = FACE_FINDING_DIRECTION.LEFT_SIDE;
+        bb8Controller.moveLeft(false, true);
+    }
+
+    private void moveRightSide() {
+        faceSearchingDirection = FACE_FINDING_DIRECTION.RIGHT_SIDE;
+        bb8Controller.moveRight(false, true);
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -221,25 +239,18 @@ public class MainActivity extends AppCompatActivity {
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     // Shows the system bars by removing all the flags
     // except for the ones that make the content appear under the system bars.
     private void showSystemUI() {
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 }
