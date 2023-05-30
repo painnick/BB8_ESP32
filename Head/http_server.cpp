@@ -28,7 +28,7 @@ static esp_err_t capture_handler(httpd_req_t *req){
 
     fb = esp_camera_fb_get();
     if (!fb) {
-#ifdef USE_SERIAL_DEBUG      
+#ifdef USE_SERIAL_DEBUG
         Serial.println("Camera capture failed");
 #endif
         httpd_resp_send_500(req);
@@ -64,7 +64,7 @@ static esp_err_t capture_handler(httpd_req_t *req){
     dl_matrix3du_t *image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
     if (!image_matrix) {
         esp_camera_fb_return(fb);
-#ifdef USE_SERIAL_DEBUG        
+#ifdef USE_SERIAL_DEBUG
         Serial.println("dl_matrix3du_alloc failed");
 #endif
         httpd_resp_send_500(req);
@@ -165,9 +165,7 @@ static esp_err_t head_handler(httpd_req_t *req){
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
 #ifdef USE_SERIAL_DEBUG
-    // uint32_t pos = zakuServo.left(angle);
     Serial.println("Left");
-    // Serial.println(pos);
 #endif
   }
   else if(!strcmp(direction, "right")) {
@@ -175,9 +173,7 @@ static esp_err_t head_handler(httpd_req_t *req){
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
 #ifdef USE_SERIAL_DEBUG
-    // uint32_t pos = zakuServo.right(angle);
     Serial.println("Right");
-    // Serial.println(pos);
 #endif
   }
   else {
@@ -186,8 +182,6 @@ static esp_err_t head_handler(httpd_req_t *req){
     Serial.println(direction);
 #endif
   }
-
-  // sprintf(body, "{\"angle\":%d}", zakuServo.angle());
 
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
   return httpd_resp_send(req, body, strlen(body));
@@ -305,7 +299,7 @@ void startCameraServer(){
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = 80;
   httpd_uri_t head_uri = {
-    .uri       = "/servo",
+    .uri       = "/motor",
     .method    = HTTP_GET,
     .handler   = head_handler,
     .user_ctx  = NULL

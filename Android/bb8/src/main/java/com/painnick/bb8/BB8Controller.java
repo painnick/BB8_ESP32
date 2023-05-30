@@ -2,8 +2,6 @@ package com.painnick.bb8;
 
 import android.os.Process;
 
-import org.json.JSONException;
-
 public class BB8Controller {
 
     private static final String TAG = "BB8Controller";
@@ -18,14 +16,6 @@ public class BB8Controller {
 
     private Boolean stopping = true;
 
-    private boolean isLedOn = false;
-
-    private int lastAngle = 90;
-
-    public int getLastAngle() {
-        return lastAngle;
-    }
-
     public BB8Controller(WebImageConsumer webImageListener, BB8ApiConsumer apiListener) {
         executor = new SingleThreadHandlerExecutor("BB8Controller", Process.THREAD_PRIORITY_DEFAULT);
         bb8Api = new BB8Api(BB8Host);
@@ -33,16 +23,7 @@ public class BB8Controller {
             webImageListener.onNewBitmap(bitmap);
             executor.execute(this::run);
         });
-        bb8Api.setApiListener(response -> {
-            if (response.has("angle")) {
-                try {
-                    lastAngle = response.getInt("angle");
-                } catch (JSONException e) {
-                    // Something
-                }
-            }
-            apiListener.onResponse(response);
-        });
+        bb8Api.setApiListener(apiListener);
     }
 
     public void start() {
@@ -68,27 +49,15 @@ public class BB8Controller {
         }
     }
 
-    public void moveLeft(int degree, boolean found) {
-        bb8Api.moveLeft(degree, found);
+    public void moveLeft(boolean found) {
+        bb8Api.moveLeft(found);
     }
 
-    public void moveRight(int degree, boolean found) {
-        bb8Api.moveRight(degree, found);
+    public void moveRight(boolean found) {
+        bb8Api.moveRight(found);
     }
 
-    public void ledOn(boolean forced) {
-        if (forced || !isLedOn) {
-            bb8Api.led(10);
-        }
-        isLedOn = true;
+    public void stopNow(boolean found) {
+        bb8Api.stopNow(found);
     }
-
-    public void ledOff(boolean forced) {
-        if (forced || isLedOn) {
-            bb8Api.led(0);
-        }
-        isLedOn = false;
-    }
-
-
 }

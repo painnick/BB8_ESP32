@@ -94,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.move_left).setOnClickListener(
                 v -> {
                     faceDirection = FACE_DIRECTION.RIGHT;
-                    bb8Controller.moveRight(15, false);
+                    bb8Controller.moveRight(false);
                 });
         findViewById(R.id.move_right).setOnClickListener(
                 v -> {
                     faceDirection = FACE_DIRECTION.LEFT;
-                    bb8Controller.moveLeft(15, false);
+                    bb8Controller.moveLeft(false);
                 });
     }
 
@@ -133,52 +133,35 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
+                    Date now = new Date();
+                    long lostSeconds = (now.getTime() - lastDetection.getTime()) / 1000;
+
                     if (foundDetection != null) { // Found!!!
                         boolean isStartSeq = (startFoundSeq == null);
                         if (isStartSeq) {
                             startFoundSeq = new Date();
                             startNotFoundSeq = null;
                         }
-                        bb8Controller.ledOn(isStartSeq);
-                        LocationDataProto.LocationData.RelativeBoundingBox box = foundDetection.getLocationData().getRelativeBoundingBox();
-                        float center = box.getXmin() + (box.getWidth() / 2);
 
-//                        if (0.4f > center || center > 0.6f) {
-//                            if (center > 0.5) {
-//                                faceDirection = FACE_DIRECTION.RIGHT;
-//                                bb8Controller.moveRight(5, true);
-//                            } else {
-//                                faceDirection = FACE_DIRECTION.LEFT;
-//                                bb8Controller.moveLeft(5, true);
-//                            }
-//                        } else {
-//                            Date now = new Date();
-//                            // 일정 시간동안 얼굴을 찾고 있더라도 찾았다는 사실을 알림
-//                            if (((now.getTime() - startFoundSeq.getTime()) / 1000) % 3 == 1) {
-//                                bb8Controller.moveLeft(0, true);
-//                            }
-//                        }
+                        // 찾은 지 30초가 지나지 않았다면 굳이 Stop 명령을 보내지 않는다.
+                        if (lostSeconds > 30) {
+                            bb8Controller.stopNow(true);
+                        }
+
                         lastDetection = new Date();
                     } else {
-                        Date now = new Date();
-                        long lostSeconds = (now.getTime() - lastDetection.getTime()) / 1000;
-
                         // LOST!!!
                         if ((startNotFoundSeq == null) && (lostSeconds > 2)) {
                             startFoundSeq = null;
                             startNotFoundSeq = new Date();
-                            bb8Controller.ledOff(true);
                         }
 
                         // 기존 방향으로 카메라 이동
-                        int lastAngle = bb8Controller.getLastAngle();
-//                        if ((20 < lastAngle) && (lastAngle < 160)) {
-                            if (faceDirection == FACE_DIRECTION.RIGHT) {
-                                bb8Controller.moveRight(30, false);
-                            } else {
-                                bb8Controller.moveLeft(30, false);
-                            }
-//                        }
+                        if (faceDirection == FACE_DIRECTION.RIGHT) {
+                            bb8Controller.moveRight(false);
+                        } else {
+                            bb8Controller.moveLeft(false);
+                        }
                     }
                 });
         faceDetection.setErrorListener(

@@ -117,30 +117,30 @@ public class BB8Api {
         executor.execute(this::loadImage);
     }
 
-    public void moveLeft(int degree, boolean found) {
+    public void moveLeft(boolean found) {
         executor.execute(() -> {
             try {
-                call("/servo?dir=left&step=" + degree + "&found=" + (found ? "true" : "false"));
+                call("/motor?dir=left&found=" + (found ? "true" : "false"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public void moveRight(int degree, boolean found) {
+    public void moveRight(boolean found) {
         executor.execute(() -> {
             try {
-                call("/servo?dir=right&step=" + degree + "&found=" + (found ? "true" : "false"));
+                call("/motor?dir=right&found=" + (found ? "true" : "false"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public void led(int bright) {
+    public void stopNow(boolean found) {
         executor.execute(() -> {
             try {
-                call("/led?bright=" + bright);
+                call("/motor?dir=none&found=" + (found ? "true" : "false"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
