@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/material_dynamic_neutral10"
     android:orientation="horizontal">
 
     <FrameLayout
         android:id="@+id/preview_display_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/no_view"
@@ -28,6 +26,7 @@
         android:layout_gravity="center|start"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
+        app:backgroundTint="@color/material_dynamic_neutral90"
         app:srcCompat="@android:drawable/ic_media_rew" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,6 +36,7 @@
         android:layout_gravity="center|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        app:backgroundTint="@color/material_dynamic_neutral90"
         app:srcCompat="@android:drawable/ic_media_ff" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -44,10 +44,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:scaleX="1.5"
         android:scaleY="1.5"
-        app:srcCompat="@android:drawable/ic_menu_search" />
+        app:backgroundTint="@color/material_dynamic_primary90"
+        app:srcCompat="@android:drawable/ic_search_category_default" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
