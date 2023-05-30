@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         setupStaticImageDemoUiComponents();
-        Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8에 연결해주세요.\n인터넷에 연결되지 않습니다.\n(ESP_XXXXXXXX와 같은 이름으로 표시될 수 있습니다.)", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_SHORT).show();
         bb8Controller.start();
     }
 
