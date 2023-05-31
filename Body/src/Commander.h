@@ -8,7 +8,7 @@
 #define COMMANDER_TAG "CMD"
 
 #define PIN_CMD_RX 15
-#define PIN_CMD_TX 14
+#define PIN_CMD_TX 25
 
 class Commander;
 typedef std::function<void(const Commander *, const String &cmd)>
