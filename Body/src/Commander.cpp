@@ -23,7 +23,7 @@ void Commander::loop() {
     cmdSerial.printf("Keep from BODY");
     cmdSerial.printf(COMMAND_DELIMETER);
     cmdSerial.flush();
-    ESP_LOGD(COMMANDER_TAG, "=> Keep from BODY");
+    ESP_LOGD(COMMANDER_TAG, "(BODY) => Keep from BODY");
   }
 
   if (cmdSerial.available()) {
@@ -40,7 +40,7 @@ void Commander::loop() {
         if (found != -1) {
           String cmd = cmdBuffer.substring(0, found);
           cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
-          ESP_LOGV(COMMANDER_TAG, "<= %s", cmd.c_str());
+          ESP_LOGV(COMMANDER_TAG, "(HEAD) <= %s", cmd.c_str());
           proc(this, cmd);
         }
       }
@@ -52,5 +52,5 @@ void Commander::send(const char *msg) {
   cmdSerial.printf(msg);
   cmdSerial.printf(COMMAND_DELIMETER);
   cmdSerial.flush();
-  ESP_LOGD(COMMANDER_TAG, "=> %s", msg);
+  ESP_LOGD(COMMANDER_TAG, "(BODY) => %s", msg);
 }
