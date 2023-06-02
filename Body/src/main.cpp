@@ -84,6 +84,13 @@ void setup() {
     }
   });
 
+  unsigned long now = millis();
+  randomSeed(now);
+  if (random(1) % 2 == 0)
+    motor1.left(100 * random(2, 10));
+  else
+    motor1.right(100 * random(2, 10));
+
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
