@@ -82,9 +82,5 @@ void setupSound() {
     delay(1);
   }
 
-  dfmp3.stop();
-
-  dfmp3.setVolume(10);
-
   ESP_LOGI(MP3_TAG, "Setup DFPlayer");
 }
