@@ -45,6 +45,8 @@ void setup() {
       commander1.send("LED1ON");
       commander1.send("LED2ON");
       commander1.send("LED3ON");
+
+      shiftRegister.set(0xFF);
       break;
     case 1: // BYE
       dfmp3.playMp3FolderTrack(SOUND_SLEEP);
@@ -52,6 +54,8 @@ void setup() {
       commander1.send("LED1OFF");
       commander1.send("LED2OFF");
       commander1.send("LED3OFF");
+
+      shiftRegister.set(0);
       break;
     case 2: // RIGHT
       motor1.right(500);
