@@ -276,7 +276,8 @@ void startCameraServer(){
 }
 
 void stopCameraServer(){
-      if(camera_httpd != NULL){
-        httpd_stop(camera_httpd);
-    }
+  if(camera_httpd != NULL){
+    httpd_stop(camera_httpd);
+  }
+  WiFi.softAPdisconnect(true);
 }
