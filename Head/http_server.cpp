@@ -247,44 +247,11 @@ esp_err_t wifiEventHandler(void* userParameter, system_event_t *event) {
 }
 
 void initCameraServer() {
-    tcpip_adapter_init();
-    tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
-    tcpip_adapter_ip_info_t ipAddressInfo;
-    memset(&ipAddressInfo, 0, sizeof(ipAddressInfo));
-    IP4_ADDR(
-        &ipAddressInfo.ip,
-        SOFT_AP_IP_ADDRESS_1,
-        SOFT_AP_IP_ADDRESS_2,
-        SOFT_AP_IP_ADDRESS_3,
-        SOFT_AP_IP_ADDRESS_4);
-    IP4_ADDR(
-        &ipAddressInfo.gw,
-        SOFT_AP_GW_ADDRESS_1,
-        SOFT_AP_GW_ADDRESS_2,
-        SOFT_AP_GW_ADDRESS_3,
-        SOFT_AP_GW_ADDRESS_4);
-    IP4_ADDR(
-        &ipAddressInfo.netmask,
-        SOFT_AP_NM_ADDRESS_1,
-        SOFT_AP_NM_ADDRESS_2,
-        SOFT_AP_NM_ADDRESS_3,
-        SOFT_AP_NM_ADDRESS_4);
-    tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &ipAddressInfo);
-    tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
-    esp_event_loop_init(wifiEventHandler, NULL);
-    wifi_init_config_t wifiConfiguration = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&wifiConfiguration);
-    esp_wifi_set_mode(WIFI_MODE_AP);
-
-    wifi_config_t apConfiguration;
-    strcpy((char*)apConfiguration.ap.ssid, (char *)SOFT_AP_SSID);
-    apConfiguration.ap.ssid_len = 0;
-    apConfiguration.ap.ssid_hidden = 0;
-    apConfiguration.ap.beacon_interval = 150;
-
-    esp_wifi_set_config(WIFI_IF_AP, &apConfiguration);
-    esp_wifi_set_storage(WIFI_STORAGE_RAM);
-    esp_wifi_start();
+  IPAddress local_ip(SOFT_AP_IP_ADDRESS_1, SOFT_AP_IP_ADDRESS_2, SOFT_AP_IP_ADDRESS_3, SOFT_AP_IP_ADDRESS_4);
+  IPAddress gateway(SOFT_AP_GW_ADDRESS_1, SOFT_AP_GW_ADDRESS_2, SOFT_AP_GW_ADDRESS_3, SOFT_AP_GW_ADDRESS_4);
+  IPAddress subnet(SOFT_AP_NM_ADDRESS_1, SOFT_AP_NM_ADDRESS_2, SOFT_AP_NM_ADDRESS_3, SOFT_AP_NM_ADDRESS_4);
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+  WiFi.softAP(SOFT_AP_SSID, SOFT_AP_PASSWORD);
 }
 
 void startCameraServer(){
