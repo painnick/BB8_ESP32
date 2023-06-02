@@ -36,8 +36,6 @@ void setup() {
 #endif
 
   initCamera();
-  initCameraServer();
-  startCameraServer();
 #ifdef USE_SERIAL_DEBUG
   Serial.println("Setup Camera.");
 #endif
@@ -51,6 +49,8 @@ void setup() {
   pinMode(PIN_LED2, OUTPUT);
   pinMode(PIN_LED3, OUTPUT);
 }
+
+bool isWifiOn = false;
 
 unsigned long lastTime = 0;
 unsigned long bufferSetUntil = 0;
@@ -117,7 +117,20 @@ void ackCommand(const String &cmd) {
 }
 
 void process(const String &cmd) {
-  if (cmd == "LED1ON") {
+  if (cmd == "WIFION") {
+    if (!isWifiOn) {
+      initCameraServer();
+      startCameraServer();
+      isWifiOn = true;
+    }
+    ackCommand(cmd);
+  } else if (cmd == "WIFIOFF") {
+    if (isWifiOn) {
+      stopCameraServer();
+      isWifiOn = false;
+    }
+    ackCommand(cmd);
+  } else if (cmd == "LED1ON") {
     digitalWrite(PIN_LED1, HIGH);
     ackCommand(cmd);
   } else if (cmd == "LED1OFF") {

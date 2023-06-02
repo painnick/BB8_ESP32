@@ -45,7 +45,7 @@ void setup() {
       commander1.send("LED1ON");
       commander1.send("LED2ON");
       commander1.send("LED3ON");
-
+      commander1.send("WIFION");
       shiftRegister.set(0xFF);
       break;
     case 1: // BYE
@@ -54,7 +54,7 @@ void setup() {
       commander1.send("LED1OFF");
       commander1.send("LED2OFF");
       commander1.send("LED3OFF");
-
+      commander1.send("WIFIOFF");
       shiftRegister.set(0);
       break;
     case 2: // RIGHT
