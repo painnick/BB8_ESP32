@@ -21,27 +21,51 @@
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
 
-#define SOUND_WELCOME 1
-#define SOUND_HELLO 2
-#define SOUND_FAIL 3
-#define SOUND_WHY 4
-#define SOUND_SLEEP 5
-#define SOUND_THEME 6
+void randomMoveMotor(unsigned long duration) {
+  if ((random(1024) % 2) == 0)
+    motor1.left(duration);
+  else
+    motor1.right(duration);
+}
 
+int lastCommand = -1;
+int duplicateCommandCount = 0;
 void setup() {
 
   ESP_LOGI(MAIN_TAG, "Setup...");
 
   setupSound();
 
-  dfmp3.playMp3FolderTrack(SOUND_WELCOME);
-
-  commander1.send("NOP");
+  // commander1.send("NOP");
 
   vr.init([](int cmd) -> void {
+    if (cmd < 0) {
+      return;
+    }
+
+    if (lastCommand == cmd) {
+      ++duplicateCommandCount;
+    } else {
+      duplicateCommandCount = 1;
+    }
+    lastCommand = cmd;
+
+    if (duplicateCommandCount > 2) {
+      ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
+      playWhy();
+      randomMoveMotor(1500);
+      return;
+    }
+
+    if (random(32) == 3) {
+      playFail();
+      randomMoveMotor(600);
+      return;
+    }
+
     switch (cmd) {
     case 0: // HELLO
-      dfmp3.playMp3FolderTrack(SOUND_HELLO);
+      randomPlayGeneral();
       commander1.send("LED1ON");
       commander1.send("LED2ON");
       commander1.send("LED3ON");
@@ -49,7 +73,7 @@ void setup() {
       shiftRegister.set(0xFF);
       break;
     case 1: // BYE
-      dfmp3.playMp3FolderTrack(SOUND_SLEEP);
+      playBye();
       motor1.stop();
       commander1.send("LED1OFF");
       commander1.send("LED2OFF");
@@ -86,10 +110,9 @@ void setup() {
 
   unsigned long now = millis();
   randomSeed(now);
-  if (random(1) % 2 == 0)
-    motor1.left(100 * random(2, 10));
-  else
-    motor1.right(100 * random(2, 10));
+  randomMoveMotor(100 * random(2, 10));
+
+  randomPlayGeneral();
 
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }

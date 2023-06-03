@@ -84,3 +84,30 @@ void setupSound() {
 
   ESP_LOGI(MP3_TAG, "Setup DFPlayer");
 }
+
+void randomPlayGeneral() {
+  // 02/xxxx .mp3
+  int index = random(1, 5);
+  dfmp3.playFolderTrack16(2, index);
+}
+
+void playOST() {
+  // 01/xxxx .mp3
+  int index = random(1, 4);
+  dfmp3.playFolderTrack16(1, index);
+}
+
+void playFail() {
+  // mp3/0003 .mp3
+  dfmp3.playMp3FolderTrack(3);
+}
+
+void playWhy() {
+  // mp3/0004 .mp3
+  dfmp3.playMp3FolderTrack(4);
+}
+
+void playBye() {
+  // mp3/0005 .mp3
+  dfmp3.playMp3FolderTrack(5);
+}
