@@ -14,8 +14,8 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
   pinMode(pin_clock, OUTPUT);
 }
 
-void ShiftRegisterController::update() {
-  if (changed) {
+void ShiftRegisterController::update(bool forced) {
+  if (forced || changed) {
     ESP_LOGD(SR_TAG, "UPDATE %d", value);
     digitalWrite(pin_latch, LOW);
     shiftOut(pin_data, pin_clock, LSBFIRST, value);

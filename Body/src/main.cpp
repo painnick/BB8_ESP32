@@ -114,6 +114,13 @@ void setup() {
 
   randomPlayGeneral();
 
+  // Head의 기존 상태 값을 초기화
+  commander1.send("LED1OFF");
+  commander1.send("LED2OFF");
+  commander1.send("LED3OFF");
+  commander1.send("WIFIOFF");
+  shiftRegister.update(true);
+
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
