@@ -17,14 +17,14 @@ void Commander::init(CommandCallnack callback) {
 }
 
 void Commander::loop() {
-  unsigned long now = millis();
-  if (now - lastKeepAliveTime > 1000 * 10) {
-    lastKeepAliveTime = now;
-    cmdSerial.printf("Keep from BODY");
-    cmdSerial.printf(COMMAND_DELIMETER);
-    cmdSerial.flush();
-    ESP_LOGD(COMMANDER_TAG, "(BODY) => Keep from BODY");
-  }
+  // unsigned long now = millis();
+  // if (now - lastKeepAliveTime > 1000 * 10) {
+  //   lastKeepAliveTime = now;
+  //   cmdSerial.printf("Keep from BODY");
+  //   cmdSerial.printf(COMMAND_DELIMETER);
+  //   cmdSerial.flush();
+  //   ESP_LOGD(COMMANDER_TAG, "(BODY) => Keep from BODY");
+  // }
 
   if (cmdSerial.available()) {
     // Append command-buffer
