@@ -102,9 +102,9 @@ void setup() {
   commander1.init([](const Commander *, const String &cmd) -> void {
     ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
     if (cmd == "Left") {
-      motor1.left(80);
+      motor1.left(300);
     } else if (cmd == "Right") {
-      motor1.right(80);
+      motor1.right(300);
     }
   });
 
