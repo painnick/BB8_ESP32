@@ -64,7 +64,7 @@ void setup() {
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
       playWhy();
       randomMoveMotor(
-          1000,
+          1500,
           [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
             moveMotorOpposite(mc, dir, 500);
           },
@@ -86,6 +86,12 @@ void setup() {
     switch (cmd) {
     case 0: // HELLO
       randomPlayGeneral();
+      randomMoveMotor(
+          500,
+          [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+            moveMotorOpposite(mc, dir, 500);
+          },
+          1000);
       commander1.send("LED1ON");
       commander1.send("LED2ON");
       commander1.send("LED3ON");
