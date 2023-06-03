@@ -1,12 +1,18 @@
 #pragma once
 
 #include <Arduino.h>
+#include <CircularBuffer.h>
 
 #define SR_TAG "SR"
 
 #define PIN_DATA 21
 #define PIN_LATCH 22
 #define PIN_CLOCK 23
+
+typedef struct {
+  unsigned long endMs;
+  byte val;
+} SR_ACTION;
 
 class ShiftRegisterController {
 public:
@@ -18,6 +24,7 @@ public:
   void off(int index);
   void only(int index);
   byte get();
+  void append(SR_ACTION action);
 
 private:
   uint8_t pin_data;
@@ -26,6 +33,10 @@ private:
 
   byte value;
   bool changed;
+
+  CircularBuffer<SR_ACTION, 10> actions;
+
+  void internalSet(byte val);
 };
 
 extern ShiftRegisterController shiftRegister;
