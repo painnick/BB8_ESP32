@@ -1,7 +1,6 @@
 #include "MotorController.h"
 
-MotorController::MotorController()
-    : targetMoveMs(0), dir(MOTOR_DIRECTION::STOP) {}
+MotorController::MotorController() : endMoveMs(0), dir(MOTOR_DIRECTION::STOP) {}
 
 MotorController::~MotorController() {}
 
@@ -10,22 +9,46 @@ void MotorController::init() {
   pinMode(PIN_MOTOR2, OUTPUT);
 }
 
-void MotorController::left(unsigned long ms) {
+void MotorController::left(unsigned long ms, unsigned long startDelayMs) {
   unsigned long now = millis();
-  targetMoveMs = now + ms;
-  internalLeft();
+  endMoveMs = now + ms + startDelayMs;
+  if (startDelayMs == 0) {
+    startMoveMs = 0;
+    internalLeft();
+  } else {
+    dir = MOTOR_DIRECTION::LEFT;
+    startMoveMs = now + startDelayMs;
+  }
 }
 
-void MotorController::right(unsigned long ms) {
+void MotorController::right(unsigned long ms, unsigned long startDelayMs) {
   unsigned long now = millis();
-  targetMoveMs = now + ms;
-  internalRight();
+  endMoveMs = now + ms + startDelayMs;
+  if (startDelayMs == 0) {
+    startMoveMs = 0;
+    internalRight();
+  } else {
+    dir = MOTOR_DIRECTION::RIGHT;
+    startMoveMs = now + startDelayMs;
+  }
 }
 
 void MotorController::loop() {
+  unsigned long now = millis();
+  if (startMoveMs != 0) {
+    if (now > startMoveMs) {
+      startMoveMs = 0;
+      if (dir == MOTOR_DIRECTION::LEFT) {
+        internalLeft();
+      } else if (dir == MOTOR_DIRECTION::RIGHT) {
+        internalRight();
+      }
+    }
+  }
+
   if (dir != MOTOR_DIRECTION::STOP) {
     unsigned long now = millis();
-    if (targetMoveMs - now < 100) {
+    if (endMoveMs - now < 100) {
       stop();
     }
   }

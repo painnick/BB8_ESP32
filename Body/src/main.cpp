@@ -21,11 +21,11 @@
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
 
-void randomMoveMotor(unsigned long duration) {
+void randomMoveMotor(unsigned long duration, unsigned long startDelayMs = 0) {
   if ((random(1024) % 2) == 0)
-    motor1.left(duration);
+    motor1.left(duration, startDelayMs);
   else
-    motor1.right(duration);
+    motor1.right(duration, startDelayMs);
 }
 
 int lastCommand = -1;
@@ -53,13 +53,13 @@ void setup() {
     if (duplicateCommandCount > 2) {
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
       playWhy();
-      randomMoveMotor(1500);
+      randomMoveMotor(1500, 1000);
       return;
     }
 
     if (random(32) == 3) {
       playFail();
-      randomMoveMotor(600);
+      randomMoveMotor(600, 1000);
       return;
     }
 
@@ -110,7 +110,7 @@ void setup() {
 
   unsigned long now = millis();
   randomSeed(now);
-  randomMoveMotor(100 * random(2, 10));
+  randomMoveMotor(100 * random(2, 10), 1000);
 
   randomPlayGeneral();
 

@@ -20,13 +20,14 @@ public:
   MotorController();
   ~MotorController();
   void init();
-  void left(unsigned long ms);
-  void right(unsigned long ms);
+  void left(unsigned long ms, unsigned long startDelatMs = 0);
+  void right(unsigned long ms, unsigned long startDelatMs = 0);
   void stop();
   void loop();
 
 private:
-  unsigned long targetMoveMs;
+  unsigned long startMoveMs;
+  unsigned long endMoveMs;
   MOTOR_DIRECTION dir;
 
   void internalLeft();
