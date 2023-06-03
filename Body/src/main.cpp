@@ -21,11 +21,21 @@
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
 
-void randomMoveMotor(unsigned long duration, unsigned long startDelayMs = 0) {
+void randomMoveMotor(unsigned long duration, MotorCallnack callback = nullptr,
+                     unsigned long startDelayMs = 0) {
   if ((random(1024) % 2) == 0)
-    motor1.left(duration, startDelayMs);
+    motor1.left(duration, callback, startDelayMs);
   else
-    motor1.right(duration, startDelayMs);
+    motor1.right(duration, callback, startDelayMs);
+}
+
+void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
+                       unsigned long duration) {
+  if (dir == MOTOR_DIRECTION::LEFT) {
+    mc->right(duration);
+  } else if (dir == MOTOR_DIRECTION::RIGHT) {
+    mc->left(duration);
+  }
 }
 
 int lastCommand = -1;
@@ -53,13 +63,18 @@ void setup() {
     if (duplicateCommandCount > 2) {
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
       playWhy();
-      randomMoveMotor(1500, 1000);
+      randomMoveMotor(
+          1000,
+          [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+            moveMotorOpposite(mc, dir, 500);
+          },
+          1000);
       return;
     }
 
     if (random(32) == 3) {
       playFail();
-      randomMoveMotor(600, 1000);
+      randomMoveMotor(600, nullptr, 1000);
       return;
     }
 
@@ -110,7 +125,12 @@ void setup() {
 
   unsigned long now = millis();
   randomSeed(now);
-  randomMoveMotor(100 * random(2, 10), 1000);
+  randomMoveMotor(
+      100 * random(3, 7),
+      [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+        moveMotorOpposite(mc, dir, 500);
+      },
+      1000);
 
   randomPlayGeneral();
 

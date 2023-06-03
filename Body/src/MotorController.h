@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <functional>
 
 #include "esp_log.h"
 
@@ -15,13 +16,18 @@ enum class MOTOR_DIRECTION {
   RIGHT = 2,
 };
 
+class MotorController;
+typedef std::function<void(MotorController *, MOTOR_DIRECTION)> MotorCallnack;
+
 class MotorController {
 public:
   MotorController();
   ~MotorController();
   void init();
-  void left(unsigned long ms, unsigned long startDelatMs = 0);
-  void right(unsigned long ms, unsigned long startDelatMs = 0);
+  void left(unsigned long ms, MotorCallnack callback = nullptr,
+            unsigned long startDelatMs = 0);
+  void right(unsigned long ms, MotorCallnack callback = nullptr,
+             unsigned long startDelatMs = 0);
   void stop();
   void loop();
 
@@ -29,6 +35,7 @@ private:
   unsigned long startMoveMs;
   unsigned long endMoveMs;
   MOTOR_DIRECTION dir;
+  MotorCallnack callback;
 
   void internalLeft();
   void internalRight();

@@ -9,7 +9,9 @@ void MotorController::init() {
   pinMode(PIN_MOTOR2, OUTPUT);
 }
 
-void MotorController::left(unsigned long ms, unsigned long startDelayMs) {
+void MotorController::left(unsigned long ms, MotorCallnack cb,
+                           unsigned long startDelayMs) {
+  callback = cb;
   unsigned long now = millis();
   endMoveMs = now + ms + startDelayMs;
   if (startDelayMs == 0) {
@@ -21,7 +23,9 @@ void MotorController::left(unsigned long ms, unsigned long startDelayMs) {
   }
 }
 
-void MotorController::right(unsigned long ms, unsigned long startDelayMs) {
+void MotorController::right(unsigned long ms, MotorCallnack cb,
+                            unsigned long startDelayMs) {
+  callback = cb;
   unsigned long now = millis();
   endMoveMs = now + ms + startDelayMs;
   if (startDelayMs == 0) {
@@ -49,7 +53,12 @@ void MotorController::loop() {
   if (dir != MOTOR_DIRECTION::STOP) {
     unsigned long now = millis();
     if (endMoveMs - now < 100) {
+      MotorCallnack lastCallback = callback;
+      MOTOR_DIRECTION lastDir = dir;
       stop();
+      if (lastCallback != nullptr) {
+        lastCallback(this, lastDir);
+      }
     }
   }
 }
