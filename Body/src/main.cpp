@@ -56,8 +56,6 @@ void setup() {
 
   setupSound();
 
-  // commander1.send("NOP");
-
   vr.init([](int cmd) -> void {
     if (cmd < 0) {
       return;
@@ -164,15 +162,6 @@ void setup() {
       motor1.right(300);
     }
   });
-
-  // unsigned long now = millis();
-  // randomSeed(now);
-  // randomMoveMotor(
-  //     200 + random(0, 5) * 100,
-  //     [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
-  //       moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
-  //     },
-  //     1000);
 
   randomPlayGeneral();
 
