@@ -1,5 +1,8 @@
 #include "MonoEyeController.h"
 
+#define CHECK_INTERVAL_MS 1000
+#define PROBABILITY 5
+
 MonoEyeController::MonoEyeController(uint8_t pinNo)
     : pinNo(pinNo), isWaiting(true) {
   pinMode(pinNo, OUTPUT);
@@ -16,16 +19,15 @@ void MonoEyeController::sleep() {
 }
 
 void MonoEyeController::loop(unsigned long now) {
-  if (isWaiting) {
-    if (now - lastChecked > 1000) {
-      tick = (++tick) % 5;
-      if (tick == 0) {
-        digitalWrite(pinNo, HIGH);
-      } else {
-        digitalWrite(pinNo, LOW);
-      }
-      lastChecked = now;
+  if (now - lastChecked > CHECK_INTERVAL_MS) {
+    tick = (++tick) % PROBABILITY;
+    bool isOn = isWaiting ? (tick == 0) : (tick != 0);
+    if (isOn) {
+      digitalWrite(pinNo, HIGH);
+    } else {
+      digitalWrite(pinNo, LOW);
     }
+    lastChecked = now;
   }
 }
 
