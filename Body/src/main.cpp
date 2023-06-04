@@ -11,10 +11,7 @@
 #define PIN_FLASH_LED 4
 #define PIN_INTERNAL_LED 33
 
-#define USE_COMMANDER
-#define USE_VR
-
-#define DUP_ERR_COUNT 3
+#define COMMAND_REPEATATION_COUNT 5
 
 #include "Commander.h"
 #include "MotorController.h"
@@ -63,7 +60,7 @@ void setup() {
     }
     lastCommand = cmd;
 
-    if (duplicateCommandCount >= DUP_ERR_COUNT) {
+    if (duplicateCommandCount >= COMMAND_REPEATATION_COUNT) {
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
       playWhy();
       randomMoveMotor(
@@ -87,9 +84,9 @@ void setup() {
     case VR_HELLO: // HELLO
       randomPlayGeneral();
       randomMoveMotor(
-          500,
+          200 + random(0, 5) * 100,
           [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
-            moveMotorOpposite(mc, dir, 500);
+            moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
           },
           1000);
       commander1.send("LED1ON");
@@ -159,9 +156,9 @@ void setup() {
   unsigned long now = millis();
   randomSeed(now);
   randomMoveMotor(
-      100 * random(3, 7),
+      200 + random(0, 5) * 100,
       [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
-        moveMotorOpposite(mc, dir, 500);
+        moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
       },
       1000);
 
