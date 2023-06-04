@@ -65,15 +65,15 @@ void MotorController::loop() {
 
 void MotorController::internalLeft() {
   dir = MOTOR_DIRECTION::LEFT;
-  digitalWrite(PIN_MOTOR1, LOW);
-  digitalWrite(PIN_MOTOR2, HIGH);
+  digitalWrite(PIN_MOTOR1, HIGH);
+  digitalWrite(PIN_MOTOR2, LOW);
   ESP_LOGD(MOTOR_TAG, "Left");
 }
 
 void MotorController::internalRight() {
   dir = MOTOR_DIRECTION::RIGHT;
-  digitalWrite(PIN_MOTOR1, HIGH);
-  digitalWrite(PIN_MOTOR2, LOW);
+  digitalWrite(PIN_MOTOR1, LOW);
+  digitalWrite(PIN_MOTOR2, HIGH);
   ESP_LOGD(MOTOR_TAG, "Right");
 }
 
