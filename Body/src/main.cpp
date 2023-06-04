@@ -69,11 +69,7 @@ void setup() {
             moveMotorOpposite(mc, dir, 500);
           },
           1000);
-      unsigned long now = millis();
-      shiftRegister.append({.endMs = now + 300, .val = 0xFF});
-      shiftRegister.append({.endMs = now + 600, .val = 0x00});
-      shiftRegister.append({.endMs = now + 900, .val = 0xFF});
-      shiftRegister.append({.endMs = now + 1200, .val = 0x00});
+      shiftRegister.warningMessage();
       return;
     }
 
@@ -152,10 +148,7 @@ void setup() {
   commander1.send("WIFIOFF");
 
   unsigned long now1 = millis();
-  shiftRegister.append({.endMs = now1 + 200, .val = 0xFF});
-  shiftRegister.append({.endMs = now1 + 400, .val = 0x00});
-  shiftRegister.append({.endMs = now1 + 600, .val = 0xFF});
-  shiftRegister.append({.endMs = now1 + 800, .val = 0x00});
+  shiftRegister.warningMessage();
 
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }

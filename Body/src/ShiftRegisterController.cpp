@@ -112,3 +112,11 @@ void ShiftRegisterController::internalSet(byte val) {
   digitalWrite(pin_latch, HIGH);
   ESP_LOGD(SR_TAG, "SR %02X", value);
 }
+
+void ShiftRegisterController::warningMessage() {
+  unsigned long now = millis();
+  append({.endMs = now + 300, .val = 0xFF});
+  append({.endMs = now + 600, .val = 0x00});
+  append({.endMs = now + 900, .val = 0xFF});
+  append({.endMs = now + 1200, .val = 0x00});
+}

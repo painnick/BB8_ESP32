@@ -26,6 +26,8 @@ public:
   byte get();
   void append(SR_ACTION action);
 
+  void warningMessage();
+
 private:
   uint8_t pin_data;
   uint8_t pin_latch;
