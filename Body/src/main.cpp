@@ -14,6 +14,8 @@
 #define USE_COMMANDER
 #define USE_VR
 
+#define DUP_ERR_COUNT 3
+
 #include "Commander.h"
 #include "MotorController.h"
 #include "Mp3Controller.h"
@@ -30,11 +32,12 @@ void randomMoveMotor(unsigned long duration, MotorCallnack callback = nullptr,
 }
 
 void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
-                       unsigned long duration) {
+                       unsigned long duration,
+                       MotorCallnack callback = nullptr) {
   if (dir == MOTOR_DIRECTION::LEFT) {
-    mc->right(duration);
+    mc->right(duration, callback);
   } else if (dir == MOTOR_DIRECTION::RIGHT) {
-    mc->left(duration);
+    mc->left(duration, callback);
   }
 }
 
@@ -60,7 +63,7 @@ void setup() {
     }
     lastCommand = cmd;
 
-    if (duplicateCommandCount > 2) {
+    if (duplicateCommandCount >= DUP_ERR_COUNT) {
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
       playWhy();
       randomMoveMotor(
@@ -70,6 +73,7 @@ void setup() {
           },
           1000);
       shiftRegister.warningMessage();
+      duplicateCommandCount = 0;
       return;
     }
 
@@ -116,6 +120,20 @@ void setup() {
     case VR_FOOL: // FOOL!
       playFail();
       shiftRegister.warningMessage();
+      randomMoveMotor(
+          500,
+          [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+            moveMotorOpposite(
+                mc, dir, 500,
+                [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+                  moveMotorOpposite(
+                      mc, dir, 300,
+                      [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+                        moveMotorOpposite(mc, dir, 300);
+                      });
+                });
+          },
+          500);
       break;
     case VR_MUSIC: // MUSIC
       motor1.stop();
