@@ -165,14 +165,14 @@ void setup() {
     }
   });
 
-  unsigned long now = millis();
-  randomSeed(now);
-  randomMoveMotor(
-      200 + random(0, 5) * 100,
-      [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
-        moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
-      },
-      1000);
+  // unsigned long now = millis();
+  // randomSeed(now);
+  // randomMoveMotor(
+  //     200 + random(0, 5) * 100,
+  //     [](MotorController *mc, MOTOR_DIRECTION dir) -> void {
+  //       moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
+  //     },
+  //     1000);
 
   randomPlayGeneral();
 
