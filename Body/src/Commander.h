@@ -12,20 +12,20 @@
 
 class Commander;
 typedef std::function<void(const Commander *, const String &cmd)>
-    CommandCallnack;
+    CommandCallback;
 
 class Commander {
 public:
   Commander(HardwareSerial &serial);
   ~Commander();
-  void init(CommandCallnack callback);
+  void init(CommandCallback callback);
   void loop();
   void send(const char *msg);
 
 private:
   HardwareSerial &cmdSerial;
   String cmdBuffer = "";
-  CommandCallnack proc;
+  CommandCallback proc;
 
   unsigned long lastKeepAliveTime = 0;
 };

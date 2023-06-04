@@ -17,16 +17,16 @@ enum class MOTOR_DIRECTION {
 };
 
 class MotorController;
-typedef std::function<void(MotorController *, MOTOR_DIRECTION)> MotorCallnack;
+typedef std::function<void(MotorController *, MOTOR_DIRECTION)> MotorCallback;
 
 class MotorController {
 public:
   MotorController();
   ~MotorController();
   void init();
-  void left(unsigned long ms, MotorCallnack callback = nullptr,
+  void left(unsigned long ms, MotorCallback callback = nullptr,
             unsigned long startDelatMs = 0);
-  void right(unsigned long ms, MotorCallnack callback = nullptr,
+  void right(unsigned long ms, MotorCallback callback = nullptr,
              unsigned long startDelatMs = 0);
   void stop();
   void loop();
@@ -35,7 +35,7 @@ private:
   unsigned long startMoveMs;
   unsigned long endMoveMs;
   MOTOR_DIRECTION dir;
-  MotorCallnack callback;
+  MotorCallback callback;
 
   void internalLeft();
   void internalRight();

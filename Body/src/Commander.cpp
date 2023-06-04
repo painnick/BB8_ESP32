@@ -9,7 +9,7 @@ Commander commander1(Serial1);
 Commander::Commander(HardwareSerial &serial) : cmdSerial(serial) {}
 Commander::~Commander() {}
 
-void Commander::init(CommandCallnack callback) {
+void Commander::init(CommandCallback callback) {
   proc = callback;
   cmdSerial.begin(9600, SERIAL_8N1, PIN_CMD_RX, PIN_CMD_TX);
   delay(500);
