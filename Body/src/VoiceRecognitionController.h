@@ -7,6 +7,16 @@
 // #define RXD2 16
 // #define TXD2 17
 
+#define VR_HELLO 0
+#define VR_BYE 1
+#define VR_RIGHT 2
+#define VR_LEFT 3
+#define VR_STOP 4
+#define VR_FOOL 5
+#define VR_MUSIC 6
+
+#define COMMAND_COUND 7
+
 class VoiceRecognitionController;
 typedef std::function<void(int cmd)> VoiceRecognitionCallback;
 
@@ -21,7 +31,7 @@ private:
   VR vr;
   VoiceRecognitionCallback proc;
   uint8_t buf[255];
-  uint8_t records[7];
+  uint8_t records[COMMAND_COUND];
 };
 
 extern VoiceRecognitionController vr;

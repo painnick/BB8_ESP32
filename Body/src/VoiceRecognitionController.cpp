@@ -11,12 +11,11 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
 
   vr.begin(9600);
 
-  int commandCount = 7;
   // Set AutoLoad
-  for (int i = 0; i < commandCount; i++) {
+  for (int i = 0; i < COMMAND_COUND; i++) {
     records[i] = i;
   }
-  int ret = vr.setAutoLoad(records, commandCount);
+  int ret = vr.setAutoLoad(records, COMMAND_COUND + 1);
   if (ret != 0) {
     ESP_LOGE(VR_TAG, "Fail to setup VoiceRecognition(%d)", ret);
   } else {

@@ -80,7 +80,7 @@ void setup() {
     }
 
     switch (cmd) {
-    case 0: // HELLO
+    case VR_HELLO: // HELLO
       randomPlayGeneral();
       randomMoveMotor(
           500,
@@ -94,7 +94,7 @@ void setup() {
       commander1.send("WIFION");
       shiftRegister.set(0xFF);
       break;
-    case 1: // BYE
+    case VR_BYE: // BYE
       playBye();
       motor1.stop();
       commander1.send("LED1OFF");
@@ -103,15 +103,23 @@ void setup() {
       commander1.send("WIFIOFF");
       shiftRegister.set(0);
       break;
-    case 2: // RIGHT
+    case VR_RIGHT: // RIGHT
       motor1.right(500);
       break;
-    case 3: // LEFT
+    case VR_LEFT: // LEFT
       motor1.left(500);
       break;
-    case 4: // STOP
+    case VR_STOP: // STOP
       dfmp3.stop();
       motor1.stop();
+      break;
+    case VR_FOOL: // FOOL!
+      playFail();
+      shiftRegister.warningMessage();
+      break;
+    case VR_MUSIC: // MUSIC
+      motor1.stop();
+      playOST();
       break;
     default:
       dfmp3.stop();
