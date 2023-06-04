@@ -13,7 +13,14 @@
 
 #define COMMAND_REPEATATION_COUNT 5
 
+#ifdef DEBUG
+#define SAY_ANYTHING_INTERVAL_SEC 30
+#else
+#define SAY_ANYTHING_INTERVAL_SEC 60
+#endif
+
 #include "Commander.h"
+#include "MonoEyeController.h"
 #include "MotorController.h"
 #include "Mp3Controller.h"
 #include "ShiftRegisterController.h"
@@ -37,6 +44,9 @@ void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
     mc->left(duration, callback);
   }
 }
+
+bool isWaiting = true;
+bool isMonoEyeOn = false;
 
 int lastCommand = -1;
 int duplicateCommandCount = 0;
@@ -82,6 +92,7 @@ void setup() {
 
     switch (cmd) {
     case VR_HELLO: // HELLO
+      monoEyeController.wakeUp();
       randomPlayGeneral();
       randomMoveMotor(
           200 + random(0, 5) * 100,
@@ -96,6 +107,7 @@ void setup() {
       shiftRegister.set(0xFF);
       break;
     case VR_BYE: // BYE
+      monoEyeController.sleep();
       playBye();
       motor1.stop();
       commander1.send("LED1OFF");
@@ -170,13 +182,19 @@ void setup() {
   commander1.send("LED3OFF");
   commander1.send("WIFIOFF");
 
-  unsigned long now1 = millis();
   shiftRegister.warningMessage();
 
   ESP_LOGI(MAIN_TAG, "Setup Body");
 }
 
+unsigned long lastSaid = 0;
 void loop() {
+  unsigned long now = millis();
+  monoEyeController.loop(now);
+  if (now - lastSaid > 1000 * SAY_ANYTHING_INTERVAL_SEC) {
+    randomPlayGeneral();
+    lastSaid = now;
+  }
   motor1.loop();
   commander1.loop();
   shiftRegister.update();
