@@ -45,9 +45,6 @@ void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
   }
 }
 
-bool isWaiting = true;
-bool isMonoEyeOn = false;
-
 int lastCommand = -1;
 int duplicateCommandCount = 0;
 void setup() {
