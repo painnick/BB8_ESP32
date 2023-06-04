@@ -17,13 +17,19 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
   }
   int ret = vr.setAutoLoad(records, COMMAND_COUND + 1);
   if (ret != 0) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Fail to setup VoiceRecognition(%d)", ret);
+#endif
   } else {
+#ifdef DEBUG
     ESP_LOGI(VR_TAG, "Setup VoiceRecognition");
+#endif
   }
 
+#ifdef DEBUG
   ESP_LOGD(VR_TAG, "=====================================");
   ESP_LOGD(VR_TAG, "Trained");
+
   uint8_t signaturs[50];
   for (int i = 0; i < 10; i++) {
     // Clear Buffer
@@ -37,6 +43,7 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
     }
   }
   ESP_LOGD(VR_TAG, "=====================================");
+#endif
 
   return ret;
 }
@@ -50,7 +57,9 @@ void VoiceRecognitionController::loop() {
     for (int i = 0; i < len; i++) {
       newBuf[i] = buf[4 + i];
     }
+#ifdef DEBUG
     ESP_LOGD(VR_TAG, "SIG %d %s", cmd, newBuf);
+#endif
     proc(cmd);
   }
 }

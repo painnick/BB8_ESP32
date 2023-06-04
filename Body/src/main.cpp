@@ -48,8 +48,9 @@ void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
 int lastCommand = -1;
 int duplicateCommandCount = 0;
 void setup() {
-
+#ifdef DEBUG
   ESP_LOGI(MAIN_TAG, "Setup...");
+#endif
 
   setupSound();
 
@@ -66,7 +67,9 @@ void setup() {
     lastCommand = cmd;
 
     if (duplicateCommandCount >= COMMAND_REPEATATION_COUNT) {
+#ifdef DEBUG
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
+#endif
       playWhy();
       randomMoveMotor(
           1500,
@@ -152,7 +155,9 @@ void setup() {
   motor1.init();
 
   commander1.init([](const Commander *, const String &cmd) -> void {
+#ifdef DEBUG
     ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
+#endif
     if (cmd == "Left") {
       motor1.left(300);
     } else if (cmd == "Right") {
@@ -162,15 +167,19 @@ void setup() {
 
   randomPlayGeneral();
 
+#ifdef DEBUG
   // Head의 기존 상태 값을 초기화
   commander1.send("LED1OFF");
   commander1.send("LED2OFF");
   commander1.send("LED3OFF");
   commander1.send("WIFIOFF");
+#endif
 
   shiftRegister.warningMessage();
 
+#ifdef DEBUG
   ESP_LOGI(MAIN_TAG, "Setup Body");
+#endif
 }
 
 unsigned long lastSaid = 0;

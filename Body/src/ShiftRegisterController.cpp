@@ -24,11 +24,15 @@ void ShiftRegisterController::update(bool forced) {
     unsigned long now = millis();
     SR_ACTION lastestAction = actions.first();
     if (lastestAction.endMs > now) {
+#ifdef DEBUG
       ESP_LOGD(SR_TAG, "Shift First Action");
+#endif
       actions.shift();
 
       if (!actions.isEmpty()) {
+#ifdef DEBUG
         ESP_LOGD(SR_TAG, "Next Action");
+#endif
         SR_ACTION newAction = actions.first();
         internalSet(newAction.val);
       }
@@ -88,18 +92,26 @@ void ShiftRegisterController::only(int index) {
 
 void ShiftRegisterController::append(SR_ACTION action) {
   if (actions.isEmpty()) {
+#ifdef DEBUG
     ESP_LOGD(SR_TAG, "Add First Action! %ul %02X", action.endMs, action.val);
+#endif
     actions.push(action);
     internalSet(action.val);
   } else if (actions.isFull()) {
+#ifdef DEBUG
     ESP_LOGW(SR_TAG, "Action queue is FULL!");
+#endif
   } else {
     SR_ACTION lastAction = actions.last();
     if (lastAction.endMs >= action.endMs) {
+#ifdef DEBUG
       ESP_LOGW(SR_TAG, "The previous request ends later!");
+#endif
     } else {
       actions.push(action);
+#ifdef DEBUG
       ESP_LOGD(SR_TAG, "Add new Action %ul %02x", action.endMs, action.val);
+#endif
     }
   }
 }
@@ -110,7 +122,9 @@ void ShiftRegisterController::internalSet(byte val) {
   digitalWrite(pin_latch, LOW);
   shiftOut(pin_data, pin_clock, LSBFIRST, val);
   digitalWrite(pin_latch, HIGH);
+#ifdef DEBUG
   ESP_LOGD(SR_TAG, "SR %02X", value);
+#endif
 }
 
 void ShiftRegisterController::warningMessage() {

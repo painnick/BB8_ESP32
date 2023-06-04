@@ -13,7 +13,9 @@ void Commander::init(CommandCallback callback) {
   proc = callback;
   cmdSerial.begin(9600, SERIAL_8N1, PIN_CMD_RX, PIN_CMD_TX);
   delay(500);
+#ifdef DEBUG
   ESP_LOGI(COMMANDER_TAG, "Setup Command-Serial");
+#endif
 }
 
 void Commander::loop() {
@@ -40,7 +42,9 @@ void Commander::loop() {
         if (found != -1) {
           String cmd = cmdBuffer.substring(0, found);
           cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
+#ifdef DEBUG
           ESP_LOGV(COMMANDER_TAG, "(HEAD) <= %s", cmd.c_str());
+#endif
           proc(this, cmd);
         }
       }
@@ -52,5 +56,7 @@ void Commander::send(const char *msg) {
   cmdSerial.printf(msg);
   cmdSerial.printf(COMMAND_DELIMETER);
   cmdSerial.flush();
+#ifdef DEBUG
   ESP_LOGD(COMMANDER_TAG, "(BODY) => %s", msg);
+#endif
 }

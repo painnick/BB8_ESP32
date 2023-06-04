@@ -17,49 +17,73 @@ public:
   static void PrintlnSourceAction(DfMp3_PlaySources source,
                                   const char *action) {
     if (source & DfMp3_PlaySources_Sd) {
+#ifdef DEBUG
       ESP_LOGD(MP3_TAG, "SD Card, %s", action);
+#endif
     }
     if (source & DfMp3_PlaySources_Usb) {
+#ifdef DEBUG
       ESP_LOGD(MP3_TAG, "USB Disk, %s", action);
+#endif
     }
     if (source & DfMp3_PlaySources_Flash) {
+#ifdef DEBUG
       ESP_LOGD(MP3_TAG, "Flash, %s", action);
+#endif
     }
   }
   static void OnError(DfMp3 &mp3, uint16_t errorCode) {
     // see DfMp3_Error for code meaning
     switch (errorCode) {
     case DfMp3_Error_Busy:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Busy");
+#endif
       break;
     case DfMp3_Error_Sleeping:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Sleeping");
+#endif
       break;
     case DfMp3_Error_SerialWrongStack:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Serial Wrong Stack");
+#endif
       break;
 
     case DfMp3_Error_RxTimeout:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Rx Timeout!!!");
+#endif
       break;
     case DfMp3_Error_PacketSize:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Size!!!");
+#endif
       break;
     case DfMp3_Error_PacketHeader:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Header!!!");
+#endif
       break;
     case DfMp3_Error_PacketChecksum:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Checksum!!!");
+#endif
       break;
 
     default:
+#ifdef DEBUG
       ESP_LOGE(MP3_TAG, "Com Error - %d", errorCode);
+#endif
       break;
     }
   }
   static void OnPlayFinished(DfMp3 &mp3, DfMp3_PlaySources source,
                              uint16_t track) {
+#ifdef DEBUG
     ESP_LOGD(MP3_TAG, "Play finished for #%d", track);
+#endif
   }
   static void OnPlaySourceOnline(DfMp3 &mp3, DfMp3_PlaySources source) {
     PrintlnSourceAction(source, "online");
@@ -86,9 +110,9 @@ void setupSound() {
   dfmp3.setVolume(15);
   dfmp3.loop();
   ESP_LOGI(MP3_TAG, "Set Volume 15");
-#endif
 
   ESP_LOGI(MP3_TAG, "Setup DFPlayer");
+#endif
 }
 
 void randomPlayGeneral() {

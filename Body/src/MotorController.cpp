@@ -67,21 +67,27 @@ void MotorController::internalLeft() {
   dir = MOTOR_DIRECTION::LEFT;
   digitalWrite(PIN_MOTOR1, HIGH);
   digitalWrite(PIN_MOTOR2, LOW);
+#ifdef DEBUG
   ESP_LOGD(MOTOR_TAG, "Left");
+#endif
 }
 
 void MotorController::internalRight() {
   dir = MOTOR_DIRECTION::RIGHT;
   digitalWrite(PIN_MOTOR1, LOW);
   digitalWrite(PIN_MOTOR2, HIGH);
+#ifdef DEBUG
   ESP_LOGD(MOTOR_TAG, "Right");
+#endif
 }
 
 void MotorController::stop() {
   dir = MOTOR_DIRECTION::STOP;
   digitalWrite(PIN_MOTOR1, LOW);
   digitalWrite(PIN_MOTOR2, LOW);
+#ifdef DEBUG
   ESP_LOGD(MOTOR_TAG, "Stop");
+#endif
 }
 
 MotorController motor1;

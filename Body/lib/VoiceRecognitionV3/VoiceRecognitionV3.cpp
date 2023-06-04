@@ -381,16 +381,19 @@ int VR ::clear() {
   len = receive_pkt(vr_buf);
 
   if (len <= 0) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Clear returned nothing");
+#endif
     return -1;
   }
 
   if (vr_buf[2] != FRAME_CMD_CLEAR) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Clear returned %x %x %x %x", vr_buf[0], vr_buf[1],
              vr_buf[2], vr_buf[3]);
+#endif
     return -1;
   }
-  // DBGLN("VR Module Cleared");
   return 0;
 }
 
@@ -924,11 +927,15 @@ int VR ::setAutoLoad(uint8_t *records, uint8_t len) {
   send_pkt(FRAME_CMD_SET_AL, map, records, len);
   ret = receive_pkt(vr_buf);
   if (ret <= 0) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Error receive_pkt(%d)", ret);
+#endif
     return -2;
   }
   if (vr_buf[2] != FRAME_CMD_SET_AL) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Receive_pkt is not SetAutoLoad");
+#endif
     return -3;
   }
   return 0;
@@ -1163,20 +1170,25 @@ int VR ::receive_pkt(uint8_t *buf, uint16_t timeout) {
 
   ret = receive(buf, 2, timeout);
   if (ret != 2) {
-    // ESP_LOGV(VR_TAG, "Cannot read 2bytes(%d)", ret);
     return -1;
   }
   if (buf[0] != FRAME_HEAD) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Invalid frame-head %02X", buf[0]);
+#endif
     return -2;
   }
   if (buf[1] < 2) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Invalid frame-length %d", buf[1]);
+#endif
     return -3;
   }
   ret = receive(buf + 2, buf[1], timeout);
   if (buf[buf[1] + 1] != FRAME_END) {
+#ifdef DEBUG
     ESP_LOGE(VR_TAG, "Invalid frame-end");
+#endif
     return -4;
   }
 
