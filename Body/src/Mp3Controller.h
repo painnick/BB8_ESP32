@@ -102,6 +102,7 @@ DfMp3 dfmp3(dfSerial);
 void setupSound() {
 
   dfmp3.begin(9600, 1000);
+  delay(1000);
   while (!dfSerial.available()) {
     delay(1);
   }
