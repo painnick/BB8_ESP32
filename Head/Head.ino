@@ -14,12 +14,14 @@
 // Left
 #define PIN_LED1 12
 #define PIN_LED2 13
-#define PIN_RX 15
-#define PIN_TX 14
+#define PIN_RX 15 // Green
+#define PIN_TX 14 // Orange
 #define PIN_LED3 2
-#define PIN_FLASHLIGHT 4
+// #define PIN_FLASHLIGHT 4
 // Right
 #define PIN_10KPULLUP 16
+// ETC
+// Yellow
 
 void process(const String &cmd);
 
