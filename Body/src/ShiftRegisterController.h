@@ -18,7 +18,7 @@ class ShiftRegisterController {
 public:
   ShiftRegisterController(uint8_t data_pin, uint8_t latch_pin,
                           uint8_t clock_pin);
-  void update(bool forced = false);
+  void loop(unsigned long now, bool forceUpdate = false);
   void set(byte newVal);
   void on(int index);
   void off(int index);

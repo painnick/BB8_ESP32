@@ -14,14 +14,13 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
   pinMode(pin_clock, OUTPUT);
 }
 
-void ShiftRegisterController::update(bool forced) {
+void ShiftRegisterController::loop(unsigned long now, bool forceUpdate) {
   if (actions.isEmpty()) {
-    if (forced || changed) {
+    if (forceUpdate || changed) {
       internalSet(value);
     }
     changed = false;
   } else {
-    unsigned long now = millis();
     SR_ACTION lastestAction = actions.first();
     if (lastestAction.endMs > now) {
 #ifdef DEBUG

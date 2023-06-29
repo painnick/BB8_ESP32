@@ -14,8 +14,9 @@
 #define VR_STOP 4
 #define VR_FOOL 5
 #define VR_MUSIC 6
+#define VR_LIGHT 7
 
-#define COMMAND_COUND 7
+#define COMMAND_COUND 8
 
 class VoiceRecognitionController;
 typedef std::function<void(int cmd)> VoiceRecognitionCallback;

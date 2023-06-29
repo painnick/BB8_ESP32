@@ -37,8 +37,7 @@ void MotorController::right(unsigned long ms, MotorCallback cb,
   }
 }
 
-void MotorController::loop() {
-  unsigned long now = millis();
+void MotorController::loop(unsigned long now) {
   if (startMoveMs != 0) {
     if (now > startMoveMs) {
       startMoveMs = 0;

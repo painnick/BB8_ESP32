@@ -29,7 +29,7 @@ public:
   void right(unsigned long ms, MotorCallback callback = nullptr,
              unsigned long startDelatMs = 0);
   void stop();
-  void loop();
+  void loop(unsigned long now);
 
 private:
   unsigned long startMoveMs;

@@ -26,6 +26,7 @@
 #include "ShiftRegisterController.h"
 #include "SoftwareSerial.h"
 #include "VoiceRecognitionController.h"
+#include "LighterController.h"
 
 void randomMoveMotor(unsigned long duration, MotorCallback callback = nullptr,
                      unsigned long startDelayMs = 0) {
@@ -146,7 +147,11 @@ void setup() {
       motor1.stop();
       playOST();
       break;
+    case VR_LIGHT:
+      lighterController.on();
+      break;
     default:
+      lighterController.off();
       dfmp3.stop();
       break;
     }
@@ -175,6 +180,8 @@ void setup() {
   commander1.send("WIFIOFF");
 #endif
 
+  lighterController.on();
+
   shiftRegister.warningMessage();
 
 #ifdef DEBUG
@@ -190,9 +197,10 @@ void loop() {
     randomPlayGeneral();
     lastSaid = now;
   }
-  motor1.loop();
+  motor1.loop(now);
   commander1.loop();
-  shiftRegister.update();
+  shiftRegister.loop(now);
+  lighterController.loop(now);
   vr.loop();
   dfmp3.loop();
 }
