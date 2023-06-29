@@ -123,6 +123,7 @@ void setup() {
       break;
     case VR_STOP: // STOP
       dfmp3.stop();
+      lighterController.off();
       motor1.stop();
       break;
     case VR_FOOL: // FOOL!
@@ -151,7 +152,6 @@ void setup() {
       lighterController.on();
       break;
     default:
-      lighterController.off();
       dfmp3.stop();
       break;
     }
