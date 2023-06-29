@@ -89,8 +89,9 @@ void setup() {
       return;
     }
 
-    switch (cmd) {
+    switch (vr.convertToSig(cmd)) {
     case VR_HELLO: // HELLO
+      vr.loadWakeup();
       monoEyeController.wakeUp();
       randomPlayGeneral();
       randomMoveMotor(
@@ -106,6 +107,7 @@ void setup() {
       shiftRegister.set(0xFF);
       break;
     case VR_BYE: // BYE
+      vr.loadDefault();
       monoEyeController.sleep();
       playBye();
       motor1.stop();
@@ -180,8 +182,6 @@ void setup() {
   commander1.send("LED3OFF");
   commander1.send("WIFIOFF");
 #endif
-
-  lighterController.on();
 
   shiftRegister.warningMessage();
 

@@ -11,27 +11,14 @@ int VoiceRecognitionController::init(VoiceRecognitionCallback callback) {
 
   vr.begin(9600);
 
-  // Set AutoLoad
-  for (int i = 0; i < COMMAND_COUND; i++) {
-    records[i] = i;
-  }
-  int ret = vr.setAutoLoad(records, COMMAND_COUND + 1);
-  if (ret != 0) {
-#ifdef DEBUG
-    ESP_LOGE(VR_TAG, "Fail to setup VoiceRecognition(%d)", ret);
-#endif
-  } else {
-#ifdef DEBUG
-    ESP_LOGI(VR_TAG, "Setup VoiceRecognition");
-#endif
-  }
+  int ret = loadDefault();
 
 #ifdef DEBUG
   ESP_LOGD(VR_TAG, "=====================================");
   ESP_LOGD(VR_TAG, "Trained");
 
   uint8_t signaturs[50];
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 8; i++) {
     // Clear Buffer
     for (int i = 0; i < 50; i++) {
       signaturs[i] = 0;
@@ -62,6 +49,56 @@ void VoiceRecognitionController::loop() {
 #endif
     proc(cmd);
   }
+}
+
+int VoiceRecognitionController::loadDefault() {
+  vr.clear();
+
+  records[0] = VR_HELLO;
+  records[1] = VR_STOP;
+  records[2] = VR_FOOL;
+  records[3] = VR_MUSIC;
+
+  int ret = vr.load(records, 4);
+  if (ret != 0) {
+#ifdef DEBUG
+    ESP_LOGE(VR_TAG, "Fail to load Default record(s)(%d)", ret);
+#endif
+  } else {
+#ifdef DEBUG
+    ESP_LOGI(VR_TAG, "Default record(s) load");
+#endif
+  }
+  return ret;
+}
+
+int VoiceRecognitionController::loadWakeup() {
+  vr.clear();
+
+  records[0] = VR_BYE;
+  records[1] = VR_RIGHT;
+  records[2] = VR_LEFT;
+  records[3] = VR_STOP;
+  records[4] = VR_FOOL;
+  records[5] = VR_LIGHT;
+  records[6] = VR_MUSIC;
+
+  int ret = vr.load(records, 7);
+  if (ret != 0) {
+#ifdef DEBUG
+    ESP_LOGE(VR_TAG, "Fail to load Default record(s)(%d)", ret);
+#endif
+  } else {
+#ifdef DEBUG
+    ESP_LOGI(VR_TAG, "Default record(s) load");
+#endif
+  }
+
+  return ret;
+}
+
+int VoiceRecognitionController::convertToSig(int vrIndex) {
+  return records[vrIndex];
 }
 
 VoiceRecognitionController vr;
