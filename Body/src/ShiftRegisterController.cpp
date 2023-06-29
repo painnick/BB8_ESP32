@@ -134,7 +134,7 @@ void ShiftRegisterController::internalSet(byte val) {
   shiftOut(pin_data, pin_clock, LSBFIRST, val);
   digitalWrite(pin_latch, HIGH);
 #ifdef DEBUG
-  ESP_LOGD(SR_TAG, "SR %02X", value);
+  ESP_LOGD(SR_TAG, "%02X", val);
 #endif
 }
 
