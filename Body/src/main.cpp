@@ -146,6 +146,7 @@ void setup() {
       break;
     case VR_MUSIC: // MUSIC
       motor1.stop();
+      shiftRegister.randomLight(true);
       playOST();
       break;
     case VR_LIGHT:

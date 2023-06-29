@@ -2,12 +2,17 @@
 
 #include "esp_log.h"
 
+#define RANDOM_INTERVAL_MS 300
+
 ShiftRegisterController shiftRegister(PIN_DATA, PIN_LATCH, PIN_CLOCK);
 
 ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
                                                  uint8_t latch_pin,
                                                  uint8_t clock_pin)
-    : pin_data(data_pin), pin_latch(latch_pin), pin_clock(clock_pin), value(0),
+    : pin_data(data_pin),
+      pin_latch(latch_pin),
+      pin_clock(clock_pin),
+      value(0),
       changed(false) {
   pinMode(pin_data, OUTPUT);
   pinMode(pin_latch, OUTPUT);
@@ -15,25 +20,32 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
 }
 
 void ShiftRegisterController::loop(unsigned long now, bool forceUpdate) {
-  if (actions.isEmpty()) {
-    if (forceUpdate || changed) {
-      internalSet(value);
+  if (isRandom) {
+    if (now - lastChecked > RANDOM_INTERVAL_MS) {
+      internalSet(random(256));
+      lastChecked = now;
     }
-    changed = false;
   } else {
-    SR_ACTION lastestAction = actions.first();
-    if (lastestAction.endMs > now) {
+    if (actions.isEmpty()) {
+      if (forceUpdate || changed) {
+        internalSet(value);
+      }
+      changed = false;
+    } else {
+      SR_ACTION lastestAction = actions.first();
+      if (lastestAction.endMs > now) {
 #ifdef DEBUG
-      ESP_LOGD(SR_TAG, "Shift First Action");
+        ESP_LOGD(SR_TAG, "Shift First Action");
 #endif
-      actions.shift();
+        actions.shift();
 
-      if (!actions.isEmpty()) {
+        if (!actions.isEmpty()) {
 #ifdef DEBUG
-        ESP_LOGD(SR_TAG, "Next Action");
+          ESP_LOGD(SR_TAG, "Next Action");
 #endif
-        SR_ACTION newAction = actions.first();
-        internalSet(newAction.val);
+          SR_ACTION newAction = actions.first();
+          internalSet(newAction.val);
+        }
       }
     }
   }
@@ -132,4 +144,10 @@ void ShiftRegisterController::warningMessage() {
   append({.endMs = now + 600, .val = 0x00});
   append({.endMs = now + 900, .val = 0xFF});
   append({.endMs = now + 1200, .val = 0x00});
+}
+
+void ShiftRegisterController::randomLight(boolean isOn) {
+  actions.clear();
+  internalSet(0);
+  isRandom = isOn;
 }

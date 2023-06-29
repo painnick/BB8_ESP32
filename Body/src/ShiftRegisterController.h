@@ -27,6 +27,7 @@ public:
   void append(SR_ACTION action);
 
   void warningMessage();
+  void randomLight(boolean isOn);
 
 private:
   uint8_t pin_data;
@@ -35,6 +36,8 @@ private:
 
   byte value;
   bool changed;
+  bool isRandom {false};
+  unsigned long lastChecked;
 
   CircularBuffer<SR_ACTION, 10> actions;
 

@@ -4,6 +4,8 @@
 #include "SoftwareSerial.h"
 #include "esp_log.h"
 
+#include "ShiftRegisterController.h"
+
 #define MP3_TAG "DFPLAYER"
 
 #define PIN_MP3_RX 26
@@ -84,6 +86,7 @@ public:
 #ifdef DEBUG
     ESP_LOGD(MP3_TAG, "Play finished for #%d", track);
 #endif
+    shiftRegister.randomLight(false);
   }
   static void OnPlaySourceOnline(DfMp3 &mp3, DfMp3_PlaySources source) {
     PrintlnSourceAction(source, "online");
