@@ -20,39 +20,52 @@ ShiftRegisterController::ShiftRegisterController(uint8_t data_pin,
 }
 
 void ShiftRegisterController::loop(unsigned long now, bool forceUpdate) {
-  if (isRandom) {
-    if (now - lastChecked > RANDOM_INTERVAL_MS) {
-      internalSet(random(256));
-      lastChecked = now;
-    }
-  } else {
-    if (actions.isEmpty()) {
+  switch (mode) {
+    case ShiftRegisterMode::FIXED:
       if (forceUpdate || changed) {
         internalSet(value);
+        changed = false;
       }
-      changed = false;
-    } else {
-      SR_ACTION lastestAction = actions.first();
-      if (lastestAction.endMs > now) {
+      break;
+    case ShiftRegisterMode::ACTIONS:
+      if (actions.isEmpty()) {
+        if (forceUpdate || changed) {
+          internalSet(value);
+        }
+        changed = false;
+      } else {
+        SR_ACTION lastestAction = actions.first();
+        if (lastestAction.endMs > now) {
 #ifdef DEBUG
-        ESP_LOGD(SR_TAG, "Shift First Action");
+          ESP_LOGD(SR_TAG, "Shift First Action");
 #endif
-        actions.shift();
+          actions.shift();
 
-        if (!actions.isEmpty()) {
+          if (!actions.isEmpty()) {
 #ifdef DEBUG
-          ESP_LOGD(SR_TAG, "Next Action");
+            ESP_LOGD(SR_TAG, "Next Action");
 #endif
-          SR_ACTION newAction = actions.first();
-          internalSet(newAction.val);
+            SR_ACTION newAction = actions.first();
+            internalSet(newAction.val);
+          }
         }
       }
-    }
+      break;
+    case ShiftRegisterMode::RANDOM:
+      if (now - lastChecked > RANDOM_INTERVAL_MS) {
+        internalSet(random(256));
+        lastChecked = now;
+      }
+      break;
+    default:
+      break;
   }
 }
 
 void ShiftRegisterController::set(byte newVal) {
   actions.clear();
+
+  mode = ShiftRegisterMode::FIXED;
 
   if (value != newVal) {
     value = newVal;
@@ -64,6 +77,8 @@ void ShiftRegisterController::set(byte newVal) {
 
 void ShiftRegisterController::on(int index) {
   actions.clear();
+
+  mode = ShiftRegisterMode::FIXED;
 
   byte newVal = value;
   bitSet(newVal, index);
@@ -78,6 +93,8 @@ void ShiftRegisterController::on(int index) {
 void ShiftRegisterController::off(int index) {
   actions.clear();
 
+  mode = ShiftRegisterMode::FIXED;
+
   byte newVal = value;
   bitClear(newVal, index);
   if (value != newVal) {
@@ -91,6 +108,8 @@ void ShiftRegisterController::off(int index) {
 void ShiftRegisterController::only(int index) {
   actions.clear();
 
+  mode = ShiftRegisterMode::FIXED;
+
   byte newVal = 0;
   bitSet(newVal, index);
   if (value != newVal) {
@@ -102,6 +121,8 @@ void ShiftRegisterController::only(int index) {
 }
 
 void ShiftRegisterController::append(SR_ACTION action) {
+  mode = ShiftRegisterMode::ACTIONS;
+
   if (actions.isEmpty()) {
 #ifdef DEBUG
     ESP_LOGD(SR_TAG, "Add First Action! %ul %02X", action.endMs, action.val);
@@ -140,6 +161,9 @@ void ShiftRegisterController::internalSet(byte val) {
 
 void ShiftRegisterController::warningMessage() {
   unsigned long now = millis();
+
+  mode = ShiftRegisterMode::ACTIONS;
+
   append({.endMs = now + 300, .val = 0xFF});
   append({.endMs = now + 600, .val = 0x00});
   append({.endMs = now + 900, .val = 0xFF});
@@ -148,6 +172,16 @@ void ShiftRegisterController::warningMessage() {
 
 void ShiftRegisterController::randomLight(boolean isOn) {
   actions.clear();
-  internalSet(0);
-  isRandom = isOn;
+
+  if (isOn) {
+    lastMode = mode;
+    lastValue = value;
+    mode = ShiftRegisterMode::RANDOM;
+  } else {
+    if (mode == ShiftRegisterMode::RANDOM) {
+      mode = lastMode;
+      value = lastValue;
+      changed = true;
+    }
+  }
 }

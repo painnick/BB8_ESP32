@@ -14,8 +14,14 @@ typedef struct {
   byte val;
 } SR_ACTION;
 
+enum ShiftRegisterMode {
+  FIXED = 0,
+  ACTIONS = 1,
+  RANDOM = 2,
+};
+
 class ShiftRegisterController {
-public:
+ public:
   ShiftRegisterController(uint8_t data_pin, uint8_t latch_pin,
                           uint8_t clock_pin);
   void loop(unsigned long now, bool forceUpdate = false);
@@ -29,14 +35,16 @@ public:
   void warningMessage();
   void randomLight(boolean isOn);
 
-private:
+ private:
   uint8_t pin_data;
   uint8_t pin_latch;
   uint8_t pin_clock;
 
+  ShiftRegisterMode mode{FIXED};
+  ShiftRegisterMode lastMode{FIXED};
   byte value;
+  byte lastValue;
   bool changed;
-  bool isRandom {false};
   unsigned long lastChecked;
 
   CircularBuffer<SR_ACTION, 10> actions;

@@ -126,6 +126,7 @@ void setup() {
     case VR_STOP: // STOP
       dfmp3.stop();
       lighterController.off();
+      shiftRegister.randomLight(false);
       motor1.stop();
       break;
     case VR_FOOL: // FOOL!
