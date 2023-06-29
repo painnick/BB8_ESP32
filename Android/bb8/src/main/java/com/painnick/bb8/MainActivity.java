@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private int foundCount = 0;
+    private int notFoundCount = 0;
+
     /**
      * Sets up core workflow for static image mode.
      */
@@ -144,23 +147,31 @@ public class MainActivity extends AppCompatActivity {
             if (isFindingFace) {
                 if (foundFace) {
                     // Found!!!
-                    lastFaceFound = new Date();
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!!!", Toast.LENGTH_LONG).show());
-                    stopFindFace();
-                } else {
-                    // LOST!!!
-                    Date now = new Date();
-                    long lastMs = now.getTime() - lastFaceFound.getTime();
-                    if (lastMs < 1000 * 5) {
-                        // 기존 방향으로 카메라 이동
-                        if (faceSearchingDirection == FACE_FINDING_DIRECTION.RIGHT_SIDE) {
-                            findRightSide();
-                        } else {
-                            findLeftSide();
-                        }
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "어디에 계신가요.ㅜㅜ", Toast.LENGTH_LONG).show());
+                    notFoundCount = 0;
+                    foundCount++;
+                    if(foundCount > 3) {
+                        lastFaceFound = new Date();
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!!!", Toast.LENGTH_LONG).show());
                         stopFindFace();
+                    }
+                } else {
+                    foundCount = 0;
+                    notFoundCount++;
+                    if (notFoundCount > 3) {
+                        // LOST!!!
+                        Date now = new Date();
+                        long lastMs = now.getTime() - lastFaceFound.getTime();
+                        if (lastMs < 1000 * 5) {
+                            // 기존 방향으로 카메라 이동
+                            if (faceSearchingDirection == FACE_FINDING_DIRECTION.RIGHT_SIDE) {
+                                findRightSide();
+                            } else {
+                                findLeftSide();
+                            }
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "어디에 계신가요.ㅜㅜ", Toast.LENGTH_LONG).show());
+                            stopFindFace();
+                        }
                     }
                 }
             }
