@@ -1,10 +1,9 @@
 #pragma once
 
 #include "DFMiniMp3.h"
+#include "ShiftRegisterController.h"
 #include "SoftwareSerial.h"
 #include "esp_log.h"
-
-#include "ShiftRegisterController.h"
 
 #define MP3_TAG "DFPLAYER"
 
@@ -15,7 +14,7 @@ class Mp3Notify;
 typedef DFMiniMp3<SoftwareSerial, Mp3Notify> DfMp3;
 
 class Mp3Notify {
-public:
+ public:
   static void PrintlnSourceAction(DfMp3_PlaySources source,
                                   const char *action) {
     if (source & DfMp3_PlaySources_Sd) {
@@ -37,48 +36,48 @@ public:
   static void OnError(DfMp3 &mp3, uint16_t errorCode) {
     // see DfMp3_Error for code meaning
     switch (errorCode) {
-    case DfMp3_Error_Busy:
+      case DfMp3_Error_Busy:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Busy");
+        ESP_LOGE(MP3_TAG, "Com Error - Busy");
 #endif
-      break;
-    case DfMp3_Error_Sleeping:
+        break;
+      case DfMp3_Error_Sleeping:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Sleeping");
+        ESP_LOGE(MP3_TAG, "Com Error - Sleeping");
 #endif
-      break;
-    case DfMp3_Error_SerialWrongStack:
+        break;
+      case DfMp3_Error_SerialWrongStack:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Serial Wrong Stack");
+        ESP_LOGE(MP3_TAG, "Com Error - Serial Wrong Stack");
 #endif
-      break;
+        break;
 
-    case DfMp3_Error_RxTimeout:
+      case DfMp3_Error_RxTimeout:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Rx Timeout!!!");
+        ESP_LOGE(MP3_TAG, "Com Error - Rx Timeout!!!");
 #endif
-      break;
-    case DfMp3_Error_PacketSize:
+        break;
+      case DfMp3_Error_PacketSize:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Size!!!");
+        ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Size!!!");
 #endif
-      break;
-    case DfMp3_Error_PacketHeader:
+        break;
+      case DfMp3_Error_PacketHeader:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Header!!!");
+        ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Header!!!");
 #endif
-      break;
-    case DfMp3_Error_PacketChecksum:
+        break;
+      case DfMp3_Error_PacketChecksum:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Checksum!!!");
+        ESP_LOGE(MP3_TAG, "Com Error - Wrong Packet Checksum!!!");
 #endif
-      break;
+        break;
 
-    default:
+      default:
 #ifdef DEBUG
-      ESP_LOGE(MP3_TAG, "Com Error - %d", errorCode);
+        ESP_LOGE(MP3_TAG, "Com Error - %d", errorCode);
 #endif
-      break;
+        break;
     }
   }
   static void OnPlayFinished(DfMp3 &mp3, DfMp3_PlaySources source,
@@ -120,9 +119,12 @@ void setupSound() {
 }
 
 void randomPlayGeneral() {
-  // 02/xxxx .mp3
-  int index = random(1, 5);
-  dfmp3.playFolderTrack16(2, index);
+  int ret = dfmp3.getStatus();
+  if (ret == 0) {
+    // 02/xxxx .mp3
+    int index = random(1, 5);
+    dfmp3.playFolderTrack16(2, index);
+  }
 }
 
 void playOST() {
