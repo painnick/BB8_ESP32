@@ -40,8 +40,12 @@ void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
                        unsigned long duration,
                        MotorCallback callback = nullptr) {
   if (dir == MOTOR_DIRECTION::LEFT) {
+    mc->stop();
+    delay(100);
     mc->right(duration, callback);
   } else if (dir == MOTOR_DIRECTION::RIGHT) {
+    mc->stop();
+    delay(100);
     mc->left(duration, callback);
   }
 }
