@@ -26,7 +26,6 @@ License along with DFMiniMp3.  If not, see
 #pragma once
 
 #define USE_MH2024K16SS
-// #define _DEBUG
 
 #include "esp_log.h"
 
@@ -406,7 +405,7 @@ private:
 
     _lastSendSpace = sendSpaceNeeded;
 
-#ifdef _DEBUG
+#ifdef DEBUG
 #ifdef USE_MH2024K16SS
     ESP_LOGV(
         TAG,
@@ -471,7 +470,7 @@ private:
       return false;
     }
 
-#ifdef _DEBUG
+#ifdef DEBUG
     ESP_LOGV(TAG, "<== (CMD) %02X (PAR1) %02X (PAR2) %02X.", in.command,
              in.hiByteArgument, in.lowByteArgument);
 #endif
