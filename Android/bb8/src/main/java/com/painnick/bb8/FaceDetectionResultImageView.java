@@ -56,13 +56,15 @@ public class FaceDetectionResultImageView extends AppCompatImageView {
         if (result == null) {
             return;
         }
+        Matrix mtx = new Matrix();
+        mtx.setScale(1, -1);
+
         Bitmap bmInput = result.inputBitmap();
         int width = bmInput.getWidth();
         int height = bmInput.getHeight();
-        latest = Bitmap.createBitmap(width, height, bmInput.getConfig());
+        latest = Bitmap.createBitmap(bmInput, 0, 0, width, height, mtx, false);
         Canvas canvas = new Canvas(latest);
-
-        canvas.drawBitmap(bmInput, new Matrix(), null);
+        canvas.drawBitmap(bmInput, mtx, null);
         if(drawBox) {
             int numDetectedFaces = result.multiFaceDetections().size();
             for (int i = 0; i < numDetectedFaces; ++i) {
@@ -70,8 +72,10 @@ public class FaceDetectionResultImageView extends AppCompatImageView {
             }
         }
 
+        // 상하 반전
+        canvas.scale(1, -1, width, height);
         // 좌우 전환
-        canvas.scale(-1, 1, width, height);
+//        canvas.scale(-1, 1, width, height);
     }
 
     /**
