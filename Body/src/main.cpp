@@ -172,9 +172,9 @@ void setup() {
     ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
 #endif
     if (cmd == "Left") {
-      motor1.left(300);
+      motor1.left(200);
     } else if (cmd == "Right") {
-      motor1.right(300);
+      motor1.right(200);
     }
   });
 
