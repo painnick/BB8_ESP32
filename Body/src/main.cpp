@@ -11,7 +11,7 @@
 #define PIN_FLASH_LED 4
 #define PIN_INTERNAL_LED 33
 
-#define COMMAND_REPEATATION_COUNT 5
+#define COMMAND_REPETITION_COUNT 5
 
 #ifdef DEBUG
 #define SAY_ANYTHING_INTERVAL_SEC 30
@@ -71,7 +71,7 @@ void setup() {
     }
     lastCommand = cmd;
 
-    if (duplicateCommandCount >= COMMAND_REPEATATION_COUNT) {
+    if (duplicateCommandCount >= COMMAND_REPETITION_COUNT) {
 #ifdef DEBUG
       ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
 #endif

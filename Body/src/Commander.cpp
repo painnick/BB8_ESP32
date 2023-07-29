@@ -1,8 +1,8 @@
 #include "Commander.h"
 
-#define COMMAND_DELIMETER "/|"
-#define COMMAND_DELIMETER_SIZE 2
-#define MAX_COMMAND_BUFFER_SZIE 50
+#define COMMAND_DELIMITER "/|"
+#define COMMAND_DELIMITER_SIZE 2
+#define MAX_COMMAND_BUFFER_SIZE 50
 
 Commander commander1(Serial1);
 
@@ -23,7 +23,7 @@ void Commander::loop() {
   // if (now - lastKeepAliveTime > 1000 * 10) {
   //   lastKeepAliveTime = now;
   //   cmdSerial.printf("Keep from BODY");
-  //   cmdSerial.printf(COMMAND_DELIMETER);
+  //   cmdSerial.printf(COMMAND_DELIMITER);
   //   cmdSerial.flush();
   //   ESP_LOGD(COMMANDER_TAG, "(BODY) => Keep from BODY");
   // }
@@ -34,14 +34,14 @@ void Commander::loop() {
       cmdBuffer += (char)cmdSerial.read();
     }
     // Check size of command-buffer
-    if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SZIE) {
+    if (cmdBuffer.length() > MAX_COMMAND_BUFFER_SIZE) {
       cmdBuffer = "";
     } else {
-      while (-1 != cmdBuffer.indexOf(COMMAND_DELIMETER)) {
-        int found = cmdBuffer.indexOf(COMMAND_DELIMETER);
+      while (-1 != cmdBuffer.indexOf(COMMAND_DELIMITER)) {
+        int found = cmdBuffer.indexOf(COMMAND_DELIMITER);
         if (found != -1) {
           String cmd = cmdBuffer.substring(0, found);
-          cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMETER_SIZE);
+          cmdBuffer = cmdBuffer.substring(found + COMMAND_DELIMITER_SIZE);
 #ifdef DEBUG
           ESP_LOGV(COMMANDER_TAG, "(HEAD) <= %s", cmd.c_str());
 #endif
@@ -54,7 +54,7 @@ void Commander::loop() {
 
 void Commander::send(const char *msg) {
   cmdSerial.printf(msg);
-  cmdSerial.printf(COMMAND_DELIMETER);
+  cmdSerial.printf(COMMAND_DELIMITER);
   cmdSerial.flush();
 #ifdef DEBUG
   ESP_LOGD(COMMANDER_TAG, "(BODY) => %s", msg);
