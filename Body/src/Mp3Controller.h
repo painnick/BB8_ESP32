@@ -107,7 +107,7 @@ public:
 SoftwareSerial dfSerial(PIN_MP3_RX, PIN_MP3_TX);
 DfMp3 dfmp3(dfSerial);
 
-void setupSound() {
+void setupSound(uint8_t vol) {
 
     dfmp3.begin(9600, 1000);
     delay(1000);
@@ -116,9 +116,9 @@ void setupSound() {
     }
 
 #ifdef DEBUG
-    dfmp3.setVolume(15);
+    dfmp3.setVolume(vol);
     dfmp3.loop();
-    ESP_LOGI(MP3_TAG, "Set Volume 15");
+    ESP_LOGI(MP3_TAG, "Set Volume %d", vol);
 
     ESP_LOGI(MP3_TAG, "Setup DFPlayer");
 #endif

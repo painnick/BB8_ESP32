@@ -28,6 +28,10 @@
 #include "ShiftRegisterController.h"
 #include "VoiceRecognitionController.h"
 #include "LighterController.h"
+#include <EEPROM.h>
+
+#define EEPROM_SIZE 2
+#define EEPROM_ADDR_VOLUME 0
 
 BluetoothSerial SerialBT;
 
@@ -135,6 +139,10 @@ void commandIncreaseVolume() {
     dfmp3.loop();
 
     uint8_t volume = dfmp3.getVolume();
+
+    EEPROM.writeUChar(EEPROM_ADDR_VOLUME, volume);
+    EEPROM.commit();
+
     SerialBT.print("Volume : ");
     SerialBT.println(volume);
 }
@@ -143,6 +151,16 @@ void commandDecreaseVolume() {
     dfmp3.decreaseVolume();
     dfmp3.loop();
 
+    uint8_t volume = dfmp3.getVolume();
+
+    EEPROM.writeUChar(EEPROM_ADDR_VOLUME, volume);
+    EEPROM.commit();
+
+    SerialBT.print("Volume : ");
+    SerialBT.println(volume);
+}
+
+void commandGetVolume() {
     uint8_t volume = dfmp3.getVolume();
     SerialBT.print("Volume : ");
     SerialBT.println(volume);
@@ -153,6 +171,10 @@ void commandSetVolume(uint8_t vol) {
     dfmp3.loop();
 
     uint8_t volume = dfmp3.getVolume();
+
+    EEPROM.writeUChar(EEPROM_ADDR_VOLUME, volume);
+    EEPROM.commit();
+
     SerialBT.print("Volume : ");
     SerialBT.println(volume);
 }
@@ -173,6 +195,7 @@ void sendCommandList() {
     SerialBT.println("volume +");
     SerialBT.println("volume -");
     SerialBT.println("volume {0~30}");
+    SerialBT.println("volume");
 }
 
 int lastCommand = -1;
@@ -181,6 +204,12 @@ int duplicateCommandCount = 0;
 void setup() {
 #ifdef DEBUG
     ESP_LOGI(MAIN_TAG, "Setup...");
+#endif
+
+    EEPROM.begin(EEPROM_SIZE);
+    int savedVolume = EEPROM.read(EEPROM_ADDR_VOLUME);
+#ifdef DEBUG
+    ESP_LOGI(MAIN_TAG, "Saved Volume : %d", savedVolume);
 #endif
 
     SerialBT.begin("BB-8");
@@ -194,7 +223,10 @@ void setup() {
         }
     });
 
-    setupSound();
+    if (savedVolume > 30) {
+        savedVolume = 15;
+    }
+    setupSound(savedVolume);
 
     vr.init([](int cmd) -> void {
         if (cmd < 0) {
@@ -327,6 +359,8 @@ void loop() {
             uint8_t vol = 0;
             sscanf(btCmd.c_str(), "volume %u", &vol);
             commandSetVolume(vol);
+        } else if (btCmd == "volume") {
+            commandGetVolume();
         } else if (btCmd == "help") {
             sendCommandList();
         } else {
