@@ -11,23 +11,26 @@
 #define PIN_CMD_TX 25
 
 class CommandRouter;
+
 typedef std::function<void(const CommandRouter *, const String &cmd)>
-    CommandCallback;
+        CommandCallback;
 
 class CommandRouter {
 public:
-  explicit CommandRouter(HardwareSerial &serial);
-  ~CommandRouter();
-  void init(CommandCallback callback);
-  void loop();
-  void send(const char *msg);
+    explicit CommandRouter(HardwareSerial &serial);
+
+    ~CommandRouter();
+
+    void init(CommandCallback callback);
+
+    void loop();
+
+    void send(const char *msg);
 
 private:
-  HardwareSerial &cmdSerial;
-  String cmdBuffer = "";
-  CommandCallback proc;
-
-  unsigned long lastKeepAliveTime = 0;
+    HardwareSerial &cmdSerial;
+    String cmdBuffer = "";
+    CommandCallback proc;
 };
 
 extern CommandRouter commandRouter1;
