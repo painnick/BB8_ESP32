@@ -6,16 +6,19 @@
 
 class MonoEyeController {
 public:
-  MonoEyeController(uint8_t pinNo);
-  void wakeUp();
-  void sleep();
-  void loop(unsigned long now);
+    explicit MonoEyeController(uint8_t pinNo);
+
+    void wakeUp();
+
+    void sleep();
+
+    void loop(unsigned long now);
 
 private:
-  uint8_t pinNo;
-  bool isWaiting;
-  unsigned int tick{};
-  unsigned int lastChecked{};
+    uint8_t pinNo;
+    bool isWaiting;
+    unsigned int tick{};
+    unsigned int lastChecked{};
 };
 
 extern MonoEyeController monoEyeController;
