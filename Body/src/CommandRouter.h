@@ -5,19 +5,19 @@
 #include "esp_log.h"
 #include <functional>
 
-#define COMMANDER_TAG "CMD"
+#define COMMAND_ROUTER_TAG "CRT"
 
 #define PIN_CMD_RX 15
 #define PIN_CMD_TX 25
 
-class Commander;
-typedef std::function<void(const Commander *, const String &cmd)>
+class CommandRouter;
+typedef std::function<void(const CommandRouter *, const String &cmd)>
     CommandCallback;
 
-class Commander {
+class CommandRouter {
 public:
-  Commander(HardwareSerial &serial);
-  ~Commander();
+  explicit CommandRouter(HardwareSerial &serial);
+  ~CommandRouter();
   void init(CommandCallback callback);
   void loop();
   void send(const char *msg);
@@ -30,4 +30,4 @@ private:
   unsigned long lastKeepAliveTime = 0;
 };
 
-extern Commander commander1;
+extern CommandRouter commandRouter1;

@@ -21,7 +21,7 @@
 #define SAY_ANYTHING_INTERVAL_SEC 60
 #endif
 
-#include "Commander.h"
+#include "CommandRouter.h"
 #include "MonoEyeController.h"
 #include "MotorController.h"
 #include "Mp3Controller.h"
@@ -63,10 +63,10 @@ void commandHello() {
                 moveMotorOpposite(mc, dir, 200 + random(0, 5) * 100);
             },
             1000);
-    commander1.send("LED1ON");
-    commander1.send("LED2ON");
-    commander1.send("LED3ON");
-    commander1.send("WIFION");
+    commandRouter1.send("LED1ON");
+    commandRouter1.send("LED2ON");
+    commandRouter1.send("LED3ON");
+    commandRouter1.send("WIFION");
     shiftRegister.set(0xFF);
 }
 
@@ -75,10 +75,10 @@ void commandBye() {
     monoEyeController.sleep();
     playBye();
     motor1.stop();
-    commander1.send("LED1OFF");
-    commander1.send("LED2OFF");
-    commander1.send("LED3OFF");
-    commander1.send("WIFIOFF");
+    commandRouter1.send("LED1OFF");
+    commandRouter1.send("LED2OFF");
+    commandRouter1.send("LED3OFF");
+    commandRouter1.send("WIFIOFF");
     shiftRegister.set(0);
 }
 
@@ -205,7 +205,7 @@ void setup() {
 
     motor1.init();
 
-    commander1.init([](const Commander *, const String &cmd) -> void {
+    commandRouter1.init([](const CommandRouter *, const String &cmd) -> void {
 #ifdef DEBUG
         ESP_LOGD(MAIN_TAG, "<= Recv : %s", cmd.c_str());
 #endif
@@ -220,10 +220,10 @@ void setup() {
 
 #ifdef DEBUG
     // Head의 기존 상태 값을 초기화
-    commander1.send("LED1OFF");
-    commander1.send("LED2OFF");
-    commander1.send("LED3OFF");
-    commander1.send("WIFIOFF");
+    commandRouter1.send("LED1OFF");
+    commandRouter1.send("LED2OFF");
+    commandRouter1.send("LED3OFF");
+    commandRouter1.send("WIFIOFF");
 #endif
 
     shiftRegister.warningMessage();
@@ -274,7 +274,7 @@ void loop() {
         lastSaid = now;
     }
     motor1.loop(now);
-    commander1.loop();
+    commandRouter1.loop();
     shiftRegister.loop(now);
     lighterController.loop(now);
     vr.loop();
