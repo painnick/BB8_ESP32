@@ -31,7 +31,7 @@
 
 BluetoothSerial SerialBT;
 
-void randomMoveMotor(unsigned long duration, MotorCallback callback = nullptr,
+void randomMoveMotor(unsigned long duration, const MotorCallback &callback = nullptr,
                      unsigned long startDelayMs = 0) {
     if ((random(1024) % 2) == 0)
         motor1.left(duration, callback, startDelayMs);
@@ -41,7 +41,7 @@ void randomMoveMotor(unsigned long duration, MotorCallback callback = nullptr,
 
 void moveMotorOpposite(MotorController *mc, MOTOR_DIRECTION dir,
                        unsigned long duration,
-                       MotorCallback callback = nullptr) {
+                       const MotorCallback &callback = nullptr) {
     if (dir == MOTOR_DIRECTION::LEFT) {
         mc->stop();
         delay(100);
@@ -152,7 +152,7 @@ void setup() {
 
         if (duplicateCommandCount >= COMMAND_REPETITION_COUNT) {
 #ifdef DEBUG
-            ESP_LOGD(MAIN_TAG, "Same command %dtimes", duplicateCommandCount);
+            ESP_LOGD(MAIN_TAG, "Same command %d times", duplicateCommandCount);
 #endif
             playWhy();
             randomMoveMotor(
