@@ -16,26 +16,33 @@
 #define VR_MUSIC 6
 #define VR_LIGHT 7
 
-#define MAX_COMMAND_COUND 7
+#define MAX_COMMAND_COUNT 7
 
 class VoiceRecognitionController;
+
 typedef std::function<void(int cmd)> VoiceRecognitionCallback;
 
 class VoiceRecognitionController {
 public:
-  VoiceRecognitionController();
-  ~VoiceRecognitionController();
-  int init(VoiceRecognitionCallback callback);
-  void loop();
-  int loadDefault();
-  int loadWakeup();
-  int convertToSig(int vrIndex);
+    VoiceRecognitionController();
+
+    ~VoiceRecognitionController();
+
+    int init(VoiceRecognitionCallback callback);
+
+    void loop();
+
+    int loadDefault();
+
+    int loadWakeup();
+
+    int convertToSig(int vrIndex);
 
 private:
-  VR vr;
-  VoiceRecognitionCallback proc;
-  uint8_t buf[255];
-  uint8_t records[MAX_COMMAND_COUND];
+    VR vr;
+    VoiceRecognitionCallback proc;
+    uint8_t buf[255]{};
+    uint8_t records[MAX_COMMAND_COUNT]{};
 };
 
 extern VoiceRecognitionController vr;
