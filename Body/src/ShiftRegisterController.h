@@ -10,46 +10,54 @@
 #define PIN_CLOCK 23
 
 typedef struct {
-  unsigned long endMs;
-  byte val;
+    unsigned long endMs;
+    byte val;
 } SR_ACTION;
 
 enum ShiftRegisterMode {
-  FIXED = 0,
-  ACTIONS = 1,
-  RANDOM = 2,
+    FIXED = 0,
+    ACTIONS = 1,
+    RANDOM = 2,
 };
 
 class ShiftRegisterController {
- public:
-  ShiftRegisterController(uint8_t data_pin, uint8_t latch_pin,
-                          uint8_t clock_pin);
-  void loop(unsigned long now, bool forceUpdate = false);
-  void set(byte newVal);
-  void on(int index);
-  void off(int index);
-  void only(int index);
-  byte get();
-  void append(SR_ACTION action);
+public:
+    ShiftRegisterController(uint8_t data_pin, uint8_t latch_pin,
+                            uint8_t clock_pin);
 
-  void warningMessage();
-  void randomLight(boolean isOn);
+    void loop(unsigned long now, bool forceUpdate = false);
 
- private:
-  uint8_t pin_data;
-  uint8_t pin_latch;
-  uint8_t pin_clock;
+    void set(byte newVal);
 
-  ShiftRegisterMode mode{FIXED};
-  ShiftRegisterMode lastMode{FIXED};
-  byte value;
-  byte lastValue;
-  bool changed;
-  unsigned long lastChecked;
+    void on(int index);
 
-  CircularBuffer<SR_ACTION, 10> actions;
+    void off(int index);
 
-  void internalSet(byte val);
+    void only(int index);
+
+    byte get();
+
+    void append(SR_ACTION action);
+
+    void warningMessage();
+
+    void randomLight(boolean isOn);
+
+private:
+    uint8_t pin_data;
+    uint8_t pin_latch;
+    uint8_t pin_clock;
+
+    ShiftRegisterMode mode{FIXED};
+    ShiftRegisterMode lastMode{FIXED};
+    byte value;
+    byte lastValue{};
+    bool changed;
+    unsigned long lastChecked{};
+
+    CircularBuffer<SR_ACTION, 10> actions;
+
+    void internalSet(byte val);
 };
 
 extern ShiftRegisterController shiftRegister;
