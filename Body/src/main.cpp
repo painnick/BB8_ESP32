@@ -122,8 +122,57 @@ void commandMusic() {
     playOST();
 }
 
-void commandLight() {
+void commandLightOn() {
     lighterController.on();
+}
+
+void commandLightOff() {
+    lighterController.off();
+}
+
+void commandIncreaseVolume() {
+    dfmp3.increaseVolume();
+    dfmp3.loop();
+
+    uint8_t volume = dfmp3.getVolume();
+    SerialBT.print("Volume : ");
+    SerialBT.println(volume);
+}
+
+void commandDecreaseVolume() {
+    dfmp3.decreaseVolume();
+    dfmp3.loop();
+
+    uint8_t volume = dfmp3.getVolume();
+    SerialBT.print("Volume : ");
+    SerialBT.println(volume);
+}
+
+void commandSetVolume(uint8_t vol) {
+    dfmp3.setVolume(vol);
+    dfmp3.loop();
+
+    uint8_t volume = dfmp3.getVolume();
+    SerialBT.print("Volume : ");
+    SerialBT.println(volume);
+}
+
+void sendCommandList() {
+    SerialBT.println("=== Type 'help' ===");
+    SerialBT.println("hello");
+    SerialBT.println("bye");
+    SerialBT.println("right");
+    SerialBT.println("left");
+    SerialBT.println("stop");
+    SerialBT.println("fool");
+    SerialBT.println("music");
+    SerialBT.println("light on");
+    SerialBT.println("light off");
+    SerialBT.println("led random");
+    SerialBT.println("led off");
+    SerialBT.println("volume +");
+    SerialBT.println("volume -");
+    SerialBT.println("volume {0~30}");
 }
 
 int lastCommand = -1;
@@ -135,6 +184,15 @@ void setup() {
 #endif
 
     SerialBT.begin("BB-8");
+    SerialBT.register_callback([](esp_spp_cb_event_t evt, esp_spp_cb_param_t *param) {
+        switch (evt) {
+            case ESP_SPP_SRV_OPEN_EVT:
+                sendCommandList();
+                break;
+            default:
+                break;
+        }
+    });
 
     setupSound();
 
@@ -195,7 +253,7 @@ void setup() {
                 commandMusic();
                 break;
             case VR_LIGHT:
-                commandLight();
+                commandLightOn();
                 break;
             default:
                 dfmp3.stop();
@@ -253,17 +311,27 @@ void loop() {
             commandFool();
         } else if (btCmd == "music") {
             commandMusic();
-        } else if (btCmd == "light") {
-            commandLight();
+        } else if (btCmd == "light on") {
+            commandLightOn();
+        } else if (btCmd == "light off") {
+            commandLightOff();
+        } else if (btCmd == "led random") {
+            shiftRegister.randomLight(true);
+        } else if (btCmd == "led off") {
+            shiftRegister.set(0x00);
+        } else if (btCmd == "volume +") {
+            commandIncreaseVolume();
+        } else if (btCmd == "volume -") {
+            commandDecreaseVolume();
+        } else if (btCmd.startsWith("volume ")) {
+            uint8_t vol = 0;
+            sscanf(btCmd.c_str(), "volume %u", &vol);
+            commandSetVolume(vol);
         } else if (btCmd == "help") {
-            SerialBT.println("hello");
-            SerialBT.println("bye");
-            SerialBT.println("right");
-            SerialBT.println("left");
-            SerialBT.println("stop");
-            SerialBT.println("fool");
-            SerialBT.println("music");
-            SerialBT.println("light");
+            sendCommandList();
+        } else {
+            SerialBT.print("Unknown command : ");
+            SerialBT.println(btCmd);
         }
     }
 
