@@ -14,14 +14,25 @@
 
 package com.painnick.bb8;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.mediapipe.formats.proto.DetectionProto;
 import com.google.mediapipe.formats.proto.LocationDataProto;
@@ -29,6 +40,7 @@ import com.google.mediapipe.solutions.facedetection.FaceDetection;
 import com.google.mediapipe.solutions.facedetection.FaceDetectionOptions;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 enum FACE_FINDING_DIRECTION {
@@ -40,6 +52,8 @@ enum FACE_FINDING_DIRECTION {
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
+    private static final String SSID = "BB-8";
 
     private BB8Controller bb8Controller;
     private FaceDetection faceDetection;
@@ -53,7 +67,30 @@ public class MainActivity extends AppCompatActivity {
     private boolean isFindingFace = false;
 
     private Random randomizer;
+    private int foundCount = 0;
+    private int notFoundCount = 0;
 
+    private void requestPermission(Activity activity) {
+        String[] permissions = new String[2];
+        permissions[0] = android.Manifest.permission.ACCESS_FINE_LOCATION;
+        permissions[1] = android.Manifest.permission.ACCESS_COARSE_LOCATION;
+
+        if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, permissions, 1);
+        }
+    }
+
+    private void checkSSID() {
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+        if (!SSID.equals(connectionInfo.getSSID())) {
+            Toast.makeText(MainActivity.this, "BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY));
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +100,11 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         setupStaticImageDemoUiComponents();
-        Toast.makeText(MainActivity.this, "Wifi를 켜고, BB-8(또는 ESP_XXXXXXXX)에 연결해 주세요.", Toast.LENGTH_LONG).show();
+
+        requestPermission(this);
+
+        checkSSID();
+
         stopFindFace();
         bb8Controller.start();
     }
@@ -111,9 +152,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private int foundCount = 0;
-    private int notFoundCount = 0;
-
     /**
      * Sets up core workflow for static image mode.
      */
@@ -149,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                     // Found!!!
                     notFoundCount = 0;
                     foundCount++;
-                    if(foundCount > 3) {
+                    if (foundCount > 3) {
                         lastFaceFound = new Date();
                         runOnUiThread(() -> Toast.makeText(MainActivity.this, "발견!!!", Toast.LENGTH_LONG).show());
                         stopFindFace();
