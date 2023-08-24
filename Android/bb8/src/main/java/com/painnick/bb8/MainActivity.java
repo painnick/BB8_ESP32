@@ -18,7 +18,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -40,7 +39,6 @@ import com.google.mediapipe.solutions.facedetection.FaceDetection;
 import com.google.mediapipe.solutions.facedetection.FaceDetectionOptions;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 enum FACE_FINDING_DIRECTION {
@@ -61,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     // Image demo UI and image loader components.
     private FaceDetectionResultImageView imageView;
 
-    private Date lastFaceFound, lastFaceLost;
+    private Date lastFaceFound;
     private FACE_FINDING_DIRECTION faceSearchingDirection = FACE_FINDING_DIRECTION.NONE;
 
     private boolean isFindingFace = false;
@@ -96,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         randomizer = new Random();
         lastFaceFound = new Date();
-        lastFaceLost = new Date();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         setupStaticImageDemoUiComponents();
@@ -169,11 +166,9 @@ public class MainActivity extends AppCompatActivity {
 
             // 인식된 영역이 있는지 검색
             float maxWidth = 0;
-            DetectionProto.Detection foundDetection = null;
             for (DetectionProto.Detection detection : faceDetectionResult.multiFaceDetections()) {
                 LocationDataProto.LocationData.RelativeBoundingBox box = detection.getLocationData().getRelativeBoundingBox();
                 if (maxWidth < box.getWidth()) {
-                    foundDetection = detection;
                     maxWidth = box.getWidth();
 
                     float center = box.getXmin() + (box.getWidth() / 2);
