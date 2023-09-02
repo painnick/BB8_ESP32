@@ -1,8 +1,10 @@
 #include <Arduino.h>
 
-#include "esp_log.h"
-
 #include "BluetoothSerial.h"
+
+#include "esp_log.h"
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 
 #define MAIN_TAG "Main"
 
@@ -202,6 +204,8 @@ int lastCommand = -1;
 int duplicateCommandCount = 0;
 
 void setup() {
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
 #ifdef DEBUG
     ESP_LOGI(MAIN_TAG, "Setup...");
 #endif
